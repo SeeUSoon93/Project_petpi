@@ -8,6 +8,12 @@ class PetpiApplicationTests {
 
 	@Test
 	void contextLoads() {
+
+	}
+
+	@Test
+	void test(){
+
 	}
 
 }

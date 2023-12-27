@@ -12,7 +12,7 @@ class PetpiApplicationTests {
 	}
 
 	@Test
-	void test(){
+	void test2(){
 
 	}
 

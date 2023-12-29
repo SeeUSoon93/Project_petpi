@@ -2,6 +2,7 @@ package com.soon.petpi.controller;
 
 import com.soon.petpi.model.dto.dev.DevLoginRequest;
 import com.soon.petpi.model.entity.User;
+import com.soon.petpi.model.label.SessionConst;
 import com.soon.petpi.service.DevUserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class DevUserController {
 
     private final DevUserService devUserService;
-    private final String sessionKey = "userIdx";
 
     @PostMapping("/login")
     public User devLogin(@Valid @RequestBody DevLoginRequest devLoginRequest, BindingResult bindingResult,
@@ -36,7 +36,7 @@ public class DevUserController {
         }
 
         HttpSession session = request.getSession();
-        session.setAttribute(sessionKey, loginUser.getUserIdx());
+        session.setAttribute(SessionConst.USER_IDX, loginUser.getUserIdx());
 
         return loginUser;
     }

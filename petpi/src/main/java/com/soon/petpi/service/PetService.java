@@ -20,16 +20,14 @@ public class PetService {
     private final PetRepository petRepository;
     private final UserRepository userRepository;
 
-    public Pet save(Long userIdx, PetRequest petRequest) {
+    public Pet save(User user, PetRequest petRequest) {
 
-        Optional<User> user = userRepository.findById(userIdx);
-
-        if (user.isEmpty()) {
+        if (user == null) {
             return null;
         }
 
         Pet pet = Pet.builder()
-                .user(user.get())
+                .user(user)
                 .petName(petRequest.getPetName())
                 .petSpecies(petRequest.getPetSpecies())
                 .petGender(petRequest.getPetGender())
@@ -40,15 +38,13 @@ public class PetService {
         return pet;
     }
 
-    public List<Pet> findAll(Long userIdx) {
+    public List<Pet> findAll(User user) {
 
-        Optional<User> user = userRepository.findById(userIdx);
-
-        if (user.isEmpty()) {
+        if (user == null) {
             return null;
         }
 
-        Optional<List<Pet>> petsOptional = petRepository.findByUser(user.get());
+        Optional<List<Pet>> petsOptional = petRepository.findByUser(user);
         return petsOptional.orElse(null);
     }
 

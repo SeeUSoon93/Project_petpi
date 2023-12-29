@@ -84,7 +84,7 @@ public class PostController {
             log.info("petName = {}", pet.getPetName());
         }
 
-        List<Pet> pets = petService.findAll(newUser.getUserIdx());
+        List<Pet> pets = petService.findAll(newUser);
 
         log.info("petName = [{}][{}]", pets.get(0).getPetName(), pets.get(1).getPetName());
 

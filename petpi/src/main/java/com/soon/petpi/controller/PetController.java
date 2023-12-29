@@ -1,7 +1,9 @@
 package com.soon.petpi.controller;
 
+import com.soon.petpi.argumentresolver.Login;
 import com.soon.petpi.model.dto.pet.PetRequest;
 import com.soon.petpi.model.entity.Pet;
+import com.soon.petpi.model.entity.User;
 import com.soon.petpi.service.PetService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -21,18 +23,18 @@ public class PetController {
     private final PetService petService;
 
     @GetMapping()
-    public List<Pet> findAllPet(@SessionAttribute(name = "userIdx") Long userIdx) {
-        return petService.findAll(userIdx);
+    public List<Pet> findAllPet(@Login User user) {
+        return petService.findAll(user);
     }
 
     @PostMapping()
-    public Pet savePet(@SessionAttribute(name = "userIdx") Long userIdx,
+    public Pet savePet(@Login User user,
                        @Valid @RequestBody PetRequest petRequest, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             log.info("error = {}", bindingResult);
             return null;
         }
-        return petService.save(userIdx, petRequest);
+        return petService.save(user, petRequest);
     }
 
     @GetMapping("/{petIdx}")

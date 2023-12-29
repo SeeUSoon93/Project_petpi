@@ -1,7 +1,9 @@
 package com.soon.petpi.service;
 
 import com.soon.petpi.model.dto.dev.DevLoginRequest;
+import com.soon.petpi.model.dto.dev.UserResponse;
 import com.soon.petpi.model.entity.User;
+import com.soon.petpi.model.label.UserRole;
 import com.soon.petpi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,14 @@ public class DevUserService {
     public User login(DevLoginRequest devLoginRequest) {
         return userRepository.findByUserEmailAndUserPw(devLoginRequest.getUserEmail(), devLoginRequest.getUserPw())
                 .orElse(null);
+    }
+
+    public UserResponse convertToResponse(User user) {
+        return UserResponse.builder()
+                .userEmail(user.getUserEmail())
+                .userNick(user.getUserNick())
+                .userRole(user.getUserRole())
+                .build();
     }
 
 }

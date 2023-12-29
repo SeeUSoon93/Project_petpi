@@ -1,6 +1,7 @@
 package com.soon.petpi.controller;
 
 import com.soon.petpi.model.dto.dev.DevLoginRequest;
+import com.soon.petpi.model.dto.dev.UserResponse;
 import com.soon.petpi.model.entity.User;
 import com.soon.petpi.model.label.SessionConst;
 import com.soon.petpi.service.DevUserService;
@@ -21,7 +22,7 @@ public class DevUserController {
     private final DevUserService devUserService;
 
     @PostMapping("/login")
-    public User devLogin(@Valid @RequestBody DevLoginRequest devLoginRequest, BindingResult bindingResult,
+    public UserResponse devLogin(@Valid @RequestBody DevLoginRequest devLoginRequest, BindingResult bindingResult,
                       HttpServletRequest request) {
 
         if (bindingResult.hasErrors()) {
@@ -37,7 +38,7 @@ public class DevUserController {
         HttpSession session = request.getSession();
         session.setAttribute(SessionConst.USER_IDX, loginUser.getUserIdx());
 
-        return loginUser;
+        return devUserService.convertToResponse(loginUser);
     }
 
 }

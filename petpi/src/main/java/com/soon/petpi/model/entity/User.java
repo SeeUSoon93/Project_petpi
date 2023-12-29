@@ -25,7 +25,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Pet> pets;
 

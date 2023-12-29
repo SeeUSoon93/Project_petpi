@@ -28,9 +28,8 @@ public class DevUserController {
             log.info("error = {}", bindingResult);
             return null;
         }
-
+    
         User loginUser = devUserService.login(devLoginRequest);
-
         if (loginUser == null) {
             return null;
         }

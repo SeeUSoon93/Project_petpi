@@ -38,7 +38,7 @@ public class DevUserController {
         HttpSession session = request.getSession();
         session.setAttribute(SessionConst.USER_IDX, loginUser.getUserIdx());
 
-        return devUserService.convertToResponse(loginUser);
+        return devUserService.convertToUserResponse(loginUser);
     }
 
 }

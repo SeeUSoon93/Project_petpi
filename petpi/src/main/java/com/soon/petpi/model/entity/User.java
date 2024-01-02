@@ -37,4 +37,7 @@ public class User {
         this.userPw = userPw;
     }
 
+    public String getUserRole() {
+        return userRole.getRoleName();
+    }
 }

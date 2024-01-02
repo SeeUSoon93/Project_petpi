@@ -19,7 +19,6 @@ public class DiseaseStatus {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long diseaseIdx;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_idx")
     private Pet pet;
@@ -40,5 +39,9 @@ public class DiseaseStatus {
         this.diseaseDate = LocalDate.now();
         this.diseaseName = diseaseName;
         this.diseaseLabel = diseaseLabel;
+    }
+
+    public String getDiseaseLabel() {
+        return diseaseLabel.getLabelName();
     }
 }

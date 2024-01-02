@@ -49,15 +49,24 @@ public class Pet {
 
     @Builder
     public Pet(Long petIdx, User user, PetSpecies petSpecies, PetGender petGender, String petName,
-               List<HealthStatus> healthStatuses, List<DiseaseStatus> diseaseStatuses, List<Chat> chat) {
+               List<HealthStatus> healthStatuses, List<DiseaseStatus> diseaseStatuses, LocalDate petBirthdate,
+               List<Chat> chat) {
         this.petIdx = petIdx;
         this.user = user;
         this.petSpecies = petSpecies;
-        this.petBirthdate = LocalDate.now();
+        this.petBirthdate = petBirthdate;
         this.petGender = petGender;
         this.petName = petName;
         this.healthStatuses = healthStatuses;
         this.diseaseStatuses = diseaseStatuses;
         this.chat = chat;
+    }
+
+    public String getPetGender() {
+        return petGender.getPetGender();
+    }
+
+    public String getPetSpecies() {
+        return petSpecies.getSpeciesName();
     }
 }

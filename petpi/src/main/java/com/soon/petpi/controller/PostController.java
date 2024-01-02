@@ -1,18 +1,12 @@
 package com.soon.petpi.controller;
 
 import com.soon.petpi.model.dto.pet.PetResponse;
-import com.soon.petpi.model.entity.DiseaseStatus;
-import com.soon.petpi.model.entity.HealthStatus;
-import com.soon.petpi.model.entity.Pet;
-import com.soon.petpi.model.entity.User;
+import com.soon.petpi.model.entity.*;
 import com.soon.petpi.model.label.DiseaseLabel;
 import com.soon.petpi.model.label.PetGender;
 import com.soon.petpi.model.label.PetSpecies;
 import com.soon.petpi.model.label.UserRole;
-import com.soon.petpi.repository.DiseaseStatusRepository;
-import com.soon.petpi.repository.HealthStatusRepository;
-import com.soon.petpi.repository.PetRepository;
-import com.soon.petpi.repository.UserRepository;
+import com.soon.petpi.repository.*;
 import com.soon.petpi.service.PetService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +28,7 @@ public class PostController {
     private final HealthStatusRepository healthStatusRepository;
     private final DiseaseStatusRepository diseaseStatusRepository;
     private final PetService petService;
+    private final ChatRepository chatRepository;
 
     @PostConstruct
     public void postAddUser() {
@@ -91,6 +87,14 @@ public class PostController {
         List<PetResponse> pets = petService.findAll(newUser);
 
         log.info("petName = [{}][{}]", pets.get(0).getPetName(), pets.get(1).getPetName());
+
+        Chat chat = Chat.builder()
+                .chatDate(LocalDate.of(2000, 1, 2))
+                .chatContent("test")
+                .pet(pet1)
+                .build();
+
+        chatRepository.save(chat);
 
     }
 }

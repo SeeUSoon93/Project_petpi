@@ -6,13 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "chat")
+@Table(name = "chats")
 public class Chat {
     /**
      * chat GPT API를 연결하고 상담 내역을 DB에 저장할 엔터티입니다.
@@ -27,15 +28,16 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long chatIdx;
 
-    private LocalDateTime chatDate;
+    private LocalDate chatDate;
 
     private String chatContent;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "pet_idx")
     private Pet pet;
 
     @Builder
-    public Chat(Long chatIdx, LocalDateTime chatDate, String chatContent, Pet pet) {
+    public Chat(Long chatIdx, LocalDate chatDate, String chatContent, Pet pet) {
         this.chatIdx = chatIdx;
         this.chatDate = chatDate;
         this.chatContent = chatContent;

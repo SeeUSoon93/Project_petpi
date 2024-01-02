@@ -93,6 +93,7 @@ public class PetService {
 
     public PetResponse petToPetResponse(Pet pet) {
         return PetResponse.builder()
+                .petIdx(pet.getPetIdx())
                 .petSpecies(pet.getPetSpecies())
                 .petBirthdate(pet.getPetBirthdate())
                 .petName(pet.getPetName())

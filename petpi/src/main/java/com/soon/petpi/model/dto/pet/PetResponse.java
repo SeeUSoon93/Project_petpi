@@ -10,6 +10,7 @@ import java.time.LocalDate;
 @Data
 @Builder
 public class PetResponse {
+    private Long petIdx;
     private String petSpecies;
     private LocalDate petBirthdate;
     private String petGender;

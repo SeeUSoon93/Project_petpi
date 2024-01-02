@@ -17,7 +17,6 @@ public class HealthStatus {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     private Long statusIdx;
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_idx")
     private Pet pet;

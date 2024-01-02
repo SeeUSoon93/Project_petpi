@@ -7,7 +7,10 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
 
+import java.time.LocalDate;
+
 @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class PetRequest {
@@ -21,7 +24,8 @@ public class PetRequest {
     @Range(min = 0, max = 1)
     private int petGender;
 
-    @Getter
+    private LocalDate petBirthdate;
+
     @NotBlank
     private String petName;
 

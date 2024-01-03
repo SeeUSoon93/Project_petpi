@@ -1,18 +1,28 @@
+<<<<<<< HEAD
 import { Link, useNavigate } from "react-router-dom";
 
 import styled from "styled-components";
 import { toast } from 'react-toastify';
+=======
+import { Link } from "react-router-dom";
+
+import styled from "styled-components";
+>>>>>>> parent of 117ace1 (Revert "Feature/#23")
 
 import Background from "/image/login-back.jpg"
 import MainLogo from "/image/pet-logo.png"
 import Kakao from "/kakaotalk-logo.svg"
+<<<<<<< HEAD
 import { useState } from "react";
+=======
+>>>>>>> parent of 117ace1 (Revert "Feature/#23")
 
 const Wrapper = styled.div`
     width: 100%;
     height: 100vh;
     position: relative;
     background-color: #ffffff;
+<<<<<<< HEAD
       /* &.active {
     .Login-box {
         visibility: visible;
@@ -21,6 +31,8 @@ const Wrapper = styled.div`
         visibility: hidden;
     }
   } */
+=======
+>>>>>>> parent of 117ace1 (Revert "Feature/#23")
 `;
 
 const BackgroundImage = styled.img`
@@ -30,11 +42,19 @@ const BackgroundImage = styled.img`
     bottom: 0;
 `;
 
+<<<<<<< HEAD
 const LoginBox = styled.form`
     width: 400px;
     height: 600px;
     background: ${({ theme }) => theme.backgrounfix2};
     margin-top: 150px;
+=======
+const LoginBox = styled.div`
+    width: 400px;
+    height: 500px;
+    background: ${({ theme }) => theme.backgrounfix2};
+    margin-top: 200px;
+>>>>>>> parent of 117ace1 (Revert "Feature/#23")
     margin-left: 10%;
     padding: 50px;
     border: 1px solid #99999944;
@@ -44,8 +64,11 @@ const LoginBox = styled.form`
     align-items: center;
     flex-direction: column;
     position: absolute; 
+<<<<<<< HEAD
     gap: 20px;
     visibility: ${(props) => (props.isActive ? 'visible' : 'hidden')};
+=======
+>>>>>>> parent of 117ace1 (Revert "Feature/#23")
 `;
 
 const TitleBox = styled.div`
@@ -54,6 +77,10 @@ const TitleBox = styled.div`
     display: flex;
     align-items: center;
     gap: 20px;
+<<<<<<< HEAD
+=======
+    margin-bottom: 50px;
+>>>>>>> parent of 117ace1 (Revert "Feature/#23")
 `;
 
 const TitleLogo = styled.img`
@@ -85,6 +112,10 @@ const TitleSub = styled.div`
 `;
 
 const TextBox = styled.div`
+<<<<<<< HEAD
+=======
+    padding-bottom: 50px;
+>>>>>>> parent of 117ace1 (Revert "Feature/#23")
     text-align: center;
     font-size: 20px;
     line-height: 1.3 ;
@@ -95,6 +126,7 @@ const TextHead = styled.div`
     padding: 20px 0;
 `;
 
+<<<<<<< HEAD
 const UserInput = styled.input`
   border: none;
   border-bottom: 2px solid #D1D1D4;
@@ -206,6 +238,20 @@ const SocialButton = styled.img`
         color: #000000;
         background-color: #FFE812;
     }
+=======
+const KakaoButton = styled.div`
+    width: 280px;
+    height: 60px;
+    border-radius: 10px;
+    font-weight: 600;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #000000;
+    background-color: #FFE812;
+    cursor: pointer;
+    gap: 10px;
+>>>>>>> parent of 117ace1 (Revert "Feature/#23")
 `;
 
 const KakaoLogo = styled.img`
@@ -214,6 +260,7 @@ const KakaoLogo = styled.img`
 `;
 
 export default function Login() {
+<<<<<<< HEAD
     const [isActive, setIsActive] = useState(false);
     const [signupFormData, setSignupFormData] = useState({
         userEmail: '',
@@ -368,6 +415,14 @@ export default function Login() {
             <Wrapper className={isActive ? 'active' : ''}>
                 <BackgroundImage src={Background} />
                 <LoginBox isActive={isActive} className="signup-box" onSubmit={handleSignupSubmit}>
+=======
+
+    return (
+        <>
+            <Wrapper>
+                <BackgroundImage src={Background} />
+                <LoginBox>
+>>>>>>> parent of 117ace1 (Revert "Feature/#23")
                     <Link to="/" style={{ textDecoration: "none" }}>
                         <TitleBox>
                             <TitleLogo src={MainLogo} />
@@ -380,6 +435,7 @@ export default function Login() {
                             </TitleText>
                         </TitleBox>
                     </Link>
+<<<<<<< HEAD
                     <UserInput type="email" name="userId" placeholder="Email" />
                     <UserInput type="password" name="userPw" placeholder="Password" />
                     <UserInput type="password" name="userPwCheck" placeholder="Password" />
@@ -429,6 +485,18 @@ export default function Login() {
                         가입한 아이디가 없으신가요? &nbsp;
                         <LinkBox href="#" onClick={() => toggle()}>회원가입</LinkBox>
                     </BottomText>
+=======
+                    <TextBox>
+                        <TextHead>어서오세요!</TextHead>
+
+                        반려인의 걱정을 덜어주는<br />
+                        펫피 입니다.
+                    </TextBox>
+                    <KakaoButton>
+                        <KakaoLogo src={Kakao} />
+                        카카오톡으로 시작하기
+                    </KakaoButton>
+>>>>>>> parent of 117ace1 (Revert "Feature/#23")
                 </LoginBox>
             </Wrapper>
         </>

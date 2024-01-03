@@ -1,6 +1,7 @@
 package com.soon.petpi.controller;
 
 import com.soon.petpi.argumentresolver.Login;
+import com.soon.petpi.exception.type.FieldErrorException;
 import com.soon.petpi.model.dto.pet.PetCalenderResponse;
 import com.soon.petpi.model.dto.pet.PetRequest;
 import com.soon.petpi.model.dto.pet.PetResponse;
@@ -33,7 +34,7 @@ public class PetController {
                        @Valid @RequestBody PetRequest petRequest, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             log.info("error = {}", bindingResult);
-            return null;
+            throw new FieldErrorException(bindingResult);
         }
 
         return petService.petToPetResponse(petService.save(user, petRequest));
@@ -46,7 +47,12 @@ public class PetController {
 
     @PatchMapping("/{petIdx}")
     public PetResponse updatePet(@PathVariable(name = "petIdx") Long petIdx,
-                         @Valid @RequestBody PetRequest petRequest) {
+                         @Valid @RequestBody PetRequest petRequest, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            log.info("error = {}", bindingResult);
+            throw new FieldErrorException(bindingResult);
+        }
+
         return petService.petToPetResponse(petService.update(petIdx, petRequest));
     }
 

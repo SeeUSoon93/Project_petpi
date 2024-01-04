@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.validator.constraints.Range;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
@@ -32,6 +33,8 @@ public class PetRequest {
 
     @NotBlank
     private String petName;
+
+    private MultipartFile petImage;
 
     public PetSpecies getPetSpecies() {
         return speciesList[petSpecies];

@@ -20,3 +20,6 @@ server:
     session:
       tracking-modes: cookie
   port: 9090
+
+file:
+  dir: /src/main/resources/pet-image/

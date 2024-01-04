@@ -7,6 +7,7 @@ import com.soon.petpi.exception.type.SessionError;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -37,8 +38,9 @@ public class ExceptionControllerAdvice {
                 .toList();
 
         List<String> messages = fieldErrors.stream()
-                .map(code -> Arrays.stream(code.getCodes()).findFirst().orElse(null))
-                .map(this::getMessage)
+                .map(fieldError -> getMessage(
+                        Arrays.stream(fieldError.getCodes()).findFirst().orElse(null),
+                        fieldError.getDefaultMessage()))
                 .toList();
 
         return new FieldErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), fieldNames, messages);
@@ -56,9 +58,13 @@ public class ExceptionControllerAdvice {
         return new ErrorResult(HttpStatus.METHOD_NOT_ALLOWED.value(), HttpStatus.METHOD_NOT_ALLOWED.name(), e.getMessage());
     }
 
-    public String getMessage(String code) {
+    public String getMessage(String code, String defaultMessage) {
         Locale locale = LocaleContextHolder.getLocale();
-        return messageSource.getMessage(code, new Object[]{}, locale);
+        try {
+            return messageSource.getMessage(code, new Object[]{}, locale);
+        } catch (NoSuchMessageException e) {
+            return defaultMessage;
+        }
     }
 
 }

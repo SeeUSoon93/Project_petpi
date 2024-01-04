@@ -8,6 +8,7 @@ spring:
     hibernate:
       ddl-auto: create
     properties:
+      hibernate.default_batch_fetch_size: 1000
       hibernate:
         format_sql: true
         show_sql: true
@@ -19,3 +20,6 @@ server:
     session:
       tracking-modes: cookie
   port: 9090
+
+file:
+  dir: /src/main/resources/pet-image/

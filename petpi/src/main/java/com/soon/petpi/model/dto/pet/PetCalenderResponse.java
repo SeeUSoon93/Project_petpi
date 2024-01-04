@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 @Getter @Setter
 public class PetCalenderResponse {
+    private Long petIdx;
     private String petName;
     private List<CalenderDiseaseStatuses> calenderDiseaseStatuses;
     private List<CalenderHealthStatuses> calenderHealthStatuses;
@@ -17,6 +18,7 @@ public class PetCalenderResponse {
     @Builder
     @Getter @Setter
     public static class CalenderDiseaseStatuses {
+        private Long diseaseIdx;
         private LocalDate date;
         private String diseaseName;
         private String diseaseLabel;
@@ -24,6 +26,7 @@ public class PetCalenderResponse {
     @Builder
     @Getter @Setter
     public static class CalenderHealthStatuses {
+        private Long statusIdx;
         private LocalDate date;
         private int petWeight;
         private String petPoo;

@@ -1,5 +1,6 @@
 package com.soon.petpi.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,10 +32,10 @@ public class HealthStatus {
 
     @Builder
     public HealthStatus(Long statusIdx, Pet pet,
-                        int petWeight, String petPoo, String petPee, LocalDate healthDate) {
+                        int petWeight, String petPoo, String petPee) {
         this.statusIdx = statusIdx;
         this.pet = pet;
-        this.healthDate = healthDate;
+        this.healthDate = LocalDate.now();
         this.petWeight = petWeight;
         this.petPoo = petPoo;
         this.petPee = petPee;

@@ -1,6 +1,7 @@
 package com.soon.petpi.controller;
 
 import com.soon.petpi.argumentresolver.Login;
+import com.soon.petpi.exception.type.FieldErrorException;
 import com.soon.petpi.model.dto.DiseaseStatus.DiseaseStatusRequest;
 import com.soon.petpi.model.dto.DiseaseStatus.DiseaseStatusResponse;
 import com.soon.petpi.model.entity.User;
@@ -24,7 +25,7 @@ public class DiseaseStatusController {
                                         @Valid @RequestBody DiseaseStatusRequest diseaseStatusRequest, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             log.info("error = {}", bindingResult);
-            return null;
+            throw new FieldErrorException(bindingResult);
         }
 
         return diseaseStatusService.DiseaseToDiseaseCreateResponse(diseaseStatusService.save(petIdx, diseaseStatusRequest));

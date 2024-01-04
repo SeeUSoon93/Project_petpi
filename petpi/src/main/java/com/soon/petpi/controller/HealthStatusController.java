@@ -1,6 +1,7 @@
 package com.soon.petpi.controller;
 
 import com.soon.petpi.argumentresolver.Login;
+import com.soon.petpi.exception.type.FieldErrorException;
 import com.soon.petpi.model.dto.HealthStatus.HealthStatusRequest;
 import com.soon.petpi.model.dto.HealthStatus.HealthStatusResponse;
 import com.soon.petpi.model.entity.HealthStatus;
@@ -25,7 +26,7 @@ public class HealthStatusController {
                                @Valid @RequestBody HealthStatusRequest healthStatusRequest, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
             log.info("error = {}", bindingResult);
-            return null;
+            throw new FieldErrorException(bindingResult);
         }
         return healthStatusService.healthToHealthResponse(healthStatusService.save(petIdx, healthStatusRequest));
     }
@@ -36,7 +37,7 @@ public class HealthStatusController {
         return healthStatusService.healthToHealthResponse(healthStatusService.update(statusIdx, healthStatusRequest));
     }
 
-    @DeleteMapping("{statusIdx}")
+    @DeleteMapping("/{statusIdx}")
     public Boolean deleteHealthStatus(@PathVariable(name = "statusIdx")Long statusIdx){
         return healthStatusService.delete(statusIdx);
     }

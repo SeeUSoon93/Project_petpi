@@ -13,6 +13,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -23,7 +25,7 @@ public class HealthStatusController {
 
     @PostMapping("/save/{petIdx}")
     public HealthStatusResponse saveHealthStatus(@PathVariable(name = "petIdx") Long petIdx,
-                               @Valid @RequestBody HealthStatusRequest healthStatusRequest, BindingResult bindingResult){
+                                                 @Valid @RequestBody HealthStatusRequest healthStatusRequest, BindingResult bindingResult)throws IOException {
         if(bindingResult.hasErrors()){
             log.info("error = {}", bindingResult);
             throw new FieldErrorException(bindingResult);
@@ -33,7 +35,13 @@ public class HealthStatusController {
 
     @PatchMapping("/{statusIdx}")
     public HealthStatusResponse updateHealthStatus(@PathVariable(name = "statusIdx") Long statusIdx,
-                                       @Valid @RequestBody HealthStatusRequest healthStatusRequest){
+                                                   @Valid @ModelAttribute HealthStatusRequest healthStatusRequest, BindingResult bindingResult) throws IOException {
+
+        if (bindingResult.hasErrors()) {
+            log.info("error = {}", bindingResult);
+            throw new FieldErrorException(bindingResult);
+        }
+
         return healthStatusService.healthToHealthResponse(healthStatusService.update(statusIdx, healthStatusRequest));
     }
 

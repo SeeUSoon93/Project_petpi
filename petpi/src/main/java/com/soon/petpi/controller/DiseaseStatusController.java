@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -22,19 +24,25 @@ public class DiseaseStatusController {
 
     @PostMapping("/save/{petIdx}")
     public DiseaseStatusResponse saveDiseaseStatus(@PathVariable(name = "petIdx") Long petIdx,
-                                        @Valid @RequestBody DiseaseStatusRequest diseaseStatusRequest, BindingResult bindingResult){
+                                                   @Valid @RequestBody DiseaseStatusRequest diseaseStatusRequest, BindingResult bindingResult)throws IOException {
         if(bindingResult.hasErrors()){
             log.info("error = {}", bindingResult);
             throw new FieldErrorException(bindingResult);
         }
 
-        return diseaseStatusService.DiseaseToDiseaseCreateResponse(diseaseStatusService.save(petIdx, diseaseStatusRequest));
+        return diseaseStatusService.DiseaseToDiseaseResponse(diseaseStatusService.save(petIdx, diseaseStatusRequest));
     }
 
     @PatchMapping("/{diseaseIdx}")
     public DiseaseStatusResponse updateDiseaseStatus(@PathVariable(name="diseaseIdx")Long diseaseIdx,
-                                        @Valid @RequestBody DiseaseStatusRequest diseaseStatusRequest){
-        return diseaseStatusService.DiseaseToDiseaseUpdateResponse(diseaseStatusService.update(diseaseIdx, diseaseStatusRequest));
+                                                     @Valid @RequestBody DiseaseStatusRequest diseaseStatusRequest, BindingResult bindingResult) throws IOException {
+
+        if (bindingResult.hasErrors()) {
+            log.info("error = {}", bindingResult);
+            throw new FieldErrorException(bindingResult);
+        }
+
+        return diseaseStatusService.DiseaseToDiseaseResponse(diseaseStatusService.update(diseaseIdx, diseaseStatusRequest));
     }
 
     @DeleteMapping("/{diseaseIdx}")

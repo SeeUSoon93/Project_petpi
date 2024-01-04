@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -22,25 +23,21 @@ public class HealthStatusService {
     private final HealthStatusRepository healthStatusRepository;
     private final PetRepository petRepository;
 
-    public HealthStatus save(Long petIdx, HealthStatusRequest healthStatusRequest){
+    public HealthStatus save(Long petIdx, HealthStatusRequest healthStatusRequest) throws IOException {
 
         Pet pet = findOnePet(petIdx);
         if(pet == null){
             return null;
         }
 
-        HealthStatus h = request(healthStatusRequest);
+        HealthStatus h = healthRequestToHealth(healthStatusRequest);
+        h.setHealthDate(LocalDate.now());
         h.setPet(pet);
 
         healthStatusRepository.save(h);
 
         return h;
     }
-
-//    public HealthStatus update(Long statusIdx, HealthStatusRequest healthStatusRequest){
-//
-//        HealthStatus h = findOne(statusIdx);
-//    }
 
     public Pet findOnePet(Long petIdx){
         return petRepository.findById(petIdx).orElse(null);
@@ -59,9 +56,8 @@ public class HealthStatusService {
                 .build();
     }
 
-    public HealthStatus request(HealthStatusRequest healthStatusRequest){
+    public HealthStatus healthRequestToHealth(HealthStatusRequest healthStatusRequest) throws IOException{
         return HealthStatus.builder()
-                .healthDate(LocalDate.now())
                 .petWeight(healthStatusRequest.getPetWeight())
                 .petPoo(healthStatusRequest.getPetPoo())
                 .petPee(healthStatusRequest.getPetPee())

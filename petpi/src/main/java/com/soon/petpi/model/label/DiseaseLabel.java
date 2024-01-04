@@ -4,5 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum DiseaseLabel {
-    AI, DOCTOR;
+    AI("AI"), DOCTOR("수의사");
+
+    private final String labelName;
+
+    DiseaseLabel(String labelName) {
+        this.labelName = labelName;
+    }
 }

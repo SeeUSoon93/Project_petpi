@@ -6,8 +6,9 @@ import lombok.Getter;
 public enum UserRole {
     USER("회원"), DOCTOR("수의사");
 
-    private UserRole(String role) {
-        this.role = role;
+    private final String roleName;
+
+    UserRole(String roleName) {
+        this.roleName = roleName;
     }
-    private final String role;
 }

@@ -1,5 +1,6 @@
 package com.soon.petpi.controller;
 
+import com.soon.petpi.model.dto.pet.PetResponse;
 import com.soon.petpi.model.entity.DiseaseStatus;
 import com.soon.petpi.model.entity.HealthStatus;
 import com.soon.petpi.model.entity.Pet;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,6 +48,7 @@ public class PostController {
         Pet pet1 = Pet.builder()
                 .user(user)
                 .petName("달봉이")
+                .petBirthdate(LocalDate.of(2000, 4, 19))
                 .petSpecies(PetSpecies.DOG)
                 .petGender(PetGender.MALE)
                 .build();
@@ -53,6 +56,7 @@ public class PostController {
         Pet pet2 = Pet.builder()
                 .user(user)
                 .petName("해봉이")
+                .petBirthdate(LocalDate.of(1998, 1, 16))
                 .petSpecies(PetSpecies.CAT)
                 .petGender(PetGender.FEMALE)
                 .build();
@@ -84,7 +88,7 @@ public class PostController {
             log.info("petName = {}", pet.getPetName());
         }
 
-        List<Pet> pets = petService.findAll(newUser.getUserIdx());
+        List<PetResponse> pets = petService.findAll(newUser);
 
         log.info("petName = [{}][{}]", pets.get(0).getPetName(), pets.get(1).getPetName());
 

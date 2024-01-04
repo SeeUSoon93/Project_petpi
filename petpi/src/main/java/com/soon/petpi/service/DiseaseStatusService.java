@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
 @Slf4j
@@ -21,14 +22,15 @@ public class DiseaseStatusService {
     private final DiseaseStatusRepository diseaseStatusRepository;
     private final PetRepository petRepository;
 
-    public DiseaseStatus save(Long petIdx, DiseaseStatusRequest diseaseStatusRequest){
+    public DiseaseStatus save(Long petIdx, DiseaseStatusRequest diseaseStatusRequest) throws IOException {
 
         Pet pet = findOnePet(petIdx);
         if(pet == null){
             return null;
         }
 
-        DiseaseStatus d = diseaseRequest(diseaseStatusRequest);
+        DiseaseStatus d = diseaseRequestToDisease(diseaseStatusRequest);
+        d.setDiseaseDate(LocalDate.now());
         d.setPet(pet);
 
         diseaseStatusRepository.save(d);
@@ -39,7 +41,7 @@ public class DiseaseStatusService {
         return petRepository.findById(petIdx).orElse(null);
     }
 
-    public DiseaseStatus diseaseRequest(DiseaseStatusRequest diseaseStatusRequest){
+    public DiseaseStatus diseaseRequestToDisease(DiseaseStatusRequest diseaseStatusRequest) throws IOException {
         return DiseaseStatus.builder()
                 .diseaseName(diseaseStatusRequest.getDiseaseName())
                 .diseaseLabel(diseaseStatusRequest.getDiseaseLabel())
@@ -76,19 +78,11 @@ public class DiseaseStatusService {
         return true;
     }
 
-    public DiseaseStatusResponse DiseaseToDiseaseCreateResponse(DiseaseStatus diseaseStatus) {
+    public DiseaseStatusResponse DiseaseToDiseaseResponse(DiseaseStatus diseaseStatus) {
         return DiseaseStatusResponse.builder()
-                .diseaseDate(LocalDate.now())
                 .diseaseName(diseaseStatus.getDiseaseName())
                 .diseaseLabel(diseaseStatus.getDiseaseLabel())
                 .build();
     }
 
-    public DiseaseStatusResponse DiseaseToDiseaseUpdateResponse(DiseaseStatus diseaseStatus) {
-        return DiseaseStatusResponse.builder()
-                .diseaseDate(diseaseStatus.getDiseaseDate())
-                .diseaseName(diseaseStatus.getDiseaseName())
-                .diseaseLabel(diseaseStatus.getDiseaseLabel())
-                .build();
-    }
 }

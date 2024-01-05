@@ -89,7 +89,7 @@ public class PostController {
         log.info("petName = [{}][{}]", pets.get(0).getPetName(), pets.get(1).getPetName());
 
         Chat chat = Chat.builder()
-                .chatDate(LocalDate.of(2000, 1, 2))
+                .chatDate(LocalDate.now())
                 .chatContent("test")
                 .pet(pet1)
                 .build();

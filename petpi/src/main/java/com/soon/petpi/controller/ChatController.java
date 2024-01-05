@@ -16,8 +16,8 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping("/chat-gpt")
-    public ResponseEntity<String> chatGptQuestion(@RequestBody String content) throws JsonProcessingException {
-        ResponseEntity<String> response = chatService.chatGptAnswer(content);
+    public ResponseEntity<String> chatGptQuestion(@RequestBody String message) throws JsonProcessingException {
+        ResponseEntity<String> response = chatService.chatGptAnswer(message);
         return response;
     }
 

@@ -34,9 +34,8 @@ public class HealthStatusController {
     }
 
     @PatchMapping("/{statusIdx}")
-    public HealthStatusResponse updateHealthStatus(@PathVariable(name = "statusIdx") Long statusIdx,
-                                                   @Valid @ModelAttribute HealthStatusRequest healthStatusRequest, BindingResult bindingResult) throws IOException {
-
+    public HealthStatusResponse updateHealthStatus(@PathVariable(name="statusIdx")Long statusIdx,
+                                                   @Valid @RequestBody HealthStatusRequest healthStatusRequest, BindingResult bindingResult) throws IOException {
         if (bindingResult.hasErrors()) {
             log.info("error = {}", bindingResult);
             throw new FieldErrorException(bindingResult);

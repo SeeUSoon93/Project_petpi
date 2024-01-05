@@ -49,6 +49,7 @@ public class HealthStatusService {
 
     public HealthStatusResponse healthToHealthResponse(HealthStatus healthStatus){
         return HealthStatusResponse.builder()
+                .statusIdx(healthStatus.getStatusIdx())
                 .healthDate(healthStatus.getHealthDate())
                 .petWeight(healthStatus.getPetWeight())
                 .petPoo(healthStatus.getPetPoo())
@@ -64,18 +65,19 @@ public class HealthStatusService {
                 .build();
     }
 
-    public HealthStatus update(Long statusIdx, HealthStatusRequest healthStatusRequest) {
+    public HealthStatus update(Long statusIdx, HealthStatusRequest healthStatusRequest){
 
-        HealthStatus saveH = findOne(statusIdx);
+        HealthStatus h = findOne(statusIdx);
 
-        if(saveH != null){
-            saveH.setPetWeight(healthStatusRequest.getPetWeight());
-            saveH.setPetPoo(healthStatusRequest.getPetPoo());
-            saveH.setPetPee(healthStatusRequest.getPetPee());
-            return healthStatusRepository.save(saveH);
+        if(h == null){
+            return null;
         }
 
-        return null;
+        h.setPetWeight(healthStatusRequest.getPetWeight());
+        h.setPetPoo(healthStatusRequest.getPetPoo());
+        h.setPetPee(healthStatusRequest.getPetPee());
+
+        return healthStatusRepository.save(h);
     }
 
     public Boolean delete(Long statusIdx){

@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +23,9 @@ import java.util.stream.Collectors;
 public class PetService {
 
     private final PetRepository petRepository;
+    private final FileStoreService fileStoreService;
 
-    public Pet save(User user, PetRequest petRequest) {
+    public Pet save(User user, PetRequest petRequest) throws IOException {
 
         if (user == null) {
             return null;
@@ -53,12 +56,16 @@ public class PetService {
         return petRepository.findById(petIdx).orElse(null);
     }
 
-    public Pet update(Long petIdx, PetRequest petRequest) {
+    public Pet update(Long petIdx, PetRequest petRequest) throws IOException {
 
         Pet savedPet = findOne(petIdx);
 
         if (savedPet == null) {
             return null;
+        }
+
+        if (savedPet.getPetImage() != null) {
+            fileStoreService.delete(savedPet.getPetImage());
         }
 
         Pet updatePet = petRequestToPet(petRequest);
@@ -74,6 +81,10 @@ public class PetService {
 
         if(deletePet==null) {
             return false;
+        }
+
+        if (deletePet.getPetImage() != null) {
+            fileStoreService.delete(deletePet.getPetImage());
         }
 
         petRepository.delete(deletePet);
@@ -98,24 +109,29 @@ public class PetService {
                 .petBirthdate(pet.getPetBirthdate())
                 .petName(pet.getPetName())
                 .petGender(pet.getPetGender())
+                .petImage(pet.getPetImage())
                 .build();
     }
 
-    public Pet petRequestToPet(PetRequest petRequest) {
+    public Pet petRequestToPet(PetRequest petRequest) throws IOException {
         return Pet.builder()
                 .petName(petRequest.getPetName())
                 .petSpecies(petRequest.getPetSpecies())
                 .petBirthdate(petRequest.getPetBirthdate())
+                .petImage(fileStoreService.uploadFile(petRequest.getPetImage())
+                        .getStoreName())
                 .petGender(petRequest.getPetGender())
                 .build();
     }
 
     public PetCalenderResponse petToPetCalenderResponse(Pet pet) {
         return PetCalenderResponse.builder()
+                .petIdx(pet.getPetIdx())
                 .petName(pet.getPetName())
 
                 .calenderDiseaseStatuses(pet.getDiseaseStatuses().stream().map(
                         disease -> PetCalenderResponse.CalenderDiseaseStatuses.builder()
+                                .diseaseIdx(disease.getDiseaseIdx())
                                 .date(disease.getDiseaseDate())
                                 .diseaseName(disease.getDiseaseName())
                                 .diseaseLabel(disease.getDiseaseLabel())
@@ -124,6 +140,7 @@ public class PetService {
 
                 .calenderHealthStatuses(pet.getHealthStatuses().stream().map(
                         health -> PetCalenderResponse.CalenderHealthStatuses.builder()
+                                .statusIdx(health.getStatusIdx())
                                 .date(health.getHealthDate())
                                 .petWeight(health.getPetWeight())
                                 .petPoo(health.getPetPoo())
@@ -132,5 +149,4 @@ public class PetService {
                 ).collect(Collectors.toList()))
                 .build();
     }
-
 }

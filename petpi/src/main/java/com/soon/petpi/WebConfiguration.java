@@ -2,6 +2,7 @@ package com.soon.petpi;
 
 import com.soon.petpi.argumentresolver.LoginUserArgumentResolver;
 import com.soon.petpi.interceptor.LogInterceptor;
+import com.soon.petpi.interceptor.SessionInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -28,5 +29,10 @@ public class WebConfiguration implements WebMvcConfigurer {
                 .order(1)
                 .addPathPatterns("/**")
                 .excludePathPatterns(whiteList);
+
+        registry.addInterceptor(new SessionInterceptor())
+                .order(2)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/css/**", "/*.ico", "/error", "/dev-user/**");
     }
 }

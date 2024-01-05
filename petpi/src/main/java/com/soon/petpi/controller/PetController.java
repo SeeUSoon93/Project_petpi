@@ -1,10 +1,10 @@
 package com.soon.petpi.controller;
 
 import com.soon.petpi.argumentresolver.Login;
+import com.soon.petpi.exception.type.FieldErrorException;
 import com.soon.petpi.model.dto.pet.PetCalenderResponse;
 import com.soon.petpi.model.dto.pet.PetRequest;
 import com.soon.petpi.model.dto.pet.PetResponse;
-import com.soon.petpi.model.entity.Pet;
 import com.soon.petpi.model.entity.User;
 import com.soon.petpi.service.PetService;
 import jakarta.validation.Valid;
@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -30,10 +31,11 @@ public class PetController {
 
     @PostMapping()
     public PetResponse savePet(@Login User user,
-                       @Valid @RequestBody PetRequest petRequest, BindingResult bindingResult) {
+                       @Valid @ModelAttribute PetRequest petRequest, BindingResult bindingResult) throws IOException {
+        // fieldError가 발생했는지 검증하여 에러가 존재하면 FieldException
         if (bindingResult.hasErrors()) {
             log.info("error = {}", bindingResult);
-            return null;
+            throw new FieldErrorException(bindingResult);
         }
 
         return petService.petToPetResponse(petService.save(user, petRequest));
@@ -46,7 +48,13 @@ public class PetController {
 
     @PatchMapping("/{petIdx}")
     public PetResponse updatePet(@PathVariable(name = "petIdx") Long petIdx,
-                         @Valid @RequestBody PetRequest petRequest) {
+                         @Valid @ModelAttribute PetRequest petRequest, BindingResult bindingResult) throws IOException {
+        // fieldError가 발생했는지 검증하여 에러가 존재하면 FieldException
+        if (bindingResult.hasErrors()) {
+            log.info("error = {}", bindingResult);
+            throw new FieldErrorException(bindingResult);
+        }
+
         return petService.petToPetResponse(petService.update(petIdx, petRequest));
     }
 

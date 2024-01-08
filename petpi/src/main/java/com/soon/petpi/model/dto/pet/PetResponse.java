@@ -15,4 +15,5 @@ public class PetResponse {
     private LocalDate petBirthdate;
     private String petGender;
     private String petName;
+    private String petImage;
 }

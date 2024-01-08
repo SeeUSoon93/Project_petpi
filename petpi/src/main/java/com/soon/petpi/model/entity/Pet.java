@@ -38,23 +38,30 @@ public class Pet {
 
     private String petName;
 
+    private String petImage;
+
     @OneToMany(mappedBy = "pet", fetch = FetchType.LAZY)
     private List<HealthStatus> healthStatuses;
 
     @OneToMany(mappedBy = "pet", fetch = FetchType.LAZY)
     private List<DiseaseStatus> diseaseStatuses;
 
+    @OneToMany(mappedBy = "pet", fetch = FetchType.LAZY)
+    private List<Chat> chat;
+
     @Builder
-    public Pet(Long petIdx, User user, PetSpecies petSpecies, PetGender petGender, String petName,
-               List<HealthStatus> healthStatuses, List<DiseaseStatus> diseaseStatuses, LocalDate petBirthdate) {
+    public Pet(Long petIdx, User user, PetSpecies petSpecies, PetGender petGender, String petName, String petImage,
+               List<HealthStatus> healthStatuses, List<DiseaseStatus> diseaseStatuses, LocalDate petBirthdate, List<Chat> chat) {
         this.petIdx = petIdx;
         this.user = user;
         this.petSpecies = petSpecies;
         this.petBirthdate = petBirthdate;
         this.petGender = petGender;
         this.petName = petName;
+        this.petImage = petImage;
         this.healthStatuses = healthStatuses;
         this.diseaseStatuses = diseaseStatuses;
+        this.chat = chat;
     }
 
     public String getPetGender() {

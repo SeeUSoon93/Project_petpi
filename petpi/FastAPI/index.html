@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .hidden {
+            display: none;
+        }
+        </style>        
+</head>
+<body>
+    <h1>반려견 피부질환 사진 업로드</h1>
+    <input type="file" id="fileUpload">
+    <button onclick="upPre()">전송</button>
+    <div id="preResult" class="hidden"></div>
+    <img id="orimg" class="hidden"/>
+    <img id="overlmg" class="hidden"/>
+
+    <script>
+
+        async function upPre() {
+            const upload = document.getElementById('fileUpload');
+            const data = new FormData();
+            data.append('file', upload.files[0]);
+
+            const response = await fetch('http://localhost:9091/predict', {
+                method: 'POST',
+                body: data
+            });
+
+            const result = await response.json();
+
+            document.getElementById('preResult').classList.remove('hidden');
+            document.getElementById('orimg').classList.remove('hidden');
+            document.getElementById('overlmg').classList.remove('hidden');
+
+            document.getElementById('preResult').innerText = '진단결과: ' + result.predicted_class_label;            
+            if (result.img) {
+                document.getElementById('orimg').src = 'data:image/jpeg;base64,' + result.img;
+            }
+            if (result.overlay) {
+                document.getElementById('overlmg').src = 'data:image/jpeg;base64,' + result.overlay;
+            }
+        }
+
+    </script>
+</body>
+</html>

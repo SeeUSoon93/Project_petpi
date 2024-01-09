@@ -80,6 +80,8 @@ public class DiseaseStatusService {
 
     public DiseaseStatusResponse DiseaseToDiseaseResponse(DiseaseStatus diseaseStatus) {
         return DiseaseStatusResponse.builder()
+                .diseaseIdx(diseaseStatus.getDiseaseIdx())
+                .diseaseDate(diseaseStatus.getDiseaseDate())
                 .diseaseName(diseaseStatus.getDiseaseName())
                 .diseaseLabel(diseaseStatus.getDiseaseLabel())
                 .build();

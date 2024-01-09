@@ -3,7 +3,15 @@ package com.soon.petpi.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.soon.petpi.argumentresolver.Login;
 import com.soon.petpi.model.dto.chat.Message;
+import com.soon.petpi.model.entity.Chat;
+import com.soon.petpi.model.entity.Pet;
+import com.soon.petpi.repository.ChatRepository;
+import com.soon.petpi.repository.PetRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -11,10 +19,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ChatService {
 
     @Value("${openai.api-key}")
@@ -23,6 +33,15 @@ public class ChatService {
     @Value("${openai.model}")
     private String model;
 
+    private final ChatRepository chatRepository;
+    private final PetRepository petRepository;
+
+    // pet 객체가 있는 지 없는 지 판단하는 로직
+    public void petExeption(HttpSession session){
+        session.getId();
+    }
+
+    // 상담내역 시작(chat gpt api)
     public ResponseEntity<String> chatGptAnswer(String content) throws JsonProcessingException {
 
         RestTemplate restTemplate = new RestTemplate();
@@ -59,5 +78,21 @@ public class ChatService {
         return exchange;
     }
 
+    // 상담내역 저장(save)
+    public boolean chatSaveService(String chatMessage){
+        try {
+            Chat chat = Chat.builder()
+                    .chatDate(LocalDate.now())
+                    .chatContent(chatMessage)
+                    //.pet()
+                    .build();
+            chatRepository.save(chat);
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+    // 상담내역 불러오기(read)
 
+    // 상담내역 삭제(delete)
 }

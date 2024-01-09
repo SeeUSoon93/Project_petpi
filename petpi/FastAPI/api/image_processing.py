@@ -5,7 +5,7 @@ from tensorflow.keras.applications.inception_v3 import preprocess_input
 from tensorflow.image import resize_with_pad as resize
 from io import BytesIO
 from api.utils import encode_image_to_base64
-from api.prediction_models import unet_models, inception_model, class_labels
+from api.prediction_models import unet_models, inception_models, class_labels
 import cv2
 
 async def predict_image(file):
@@ -28,14 +28,16 @@ async def predict_image(file):
         prediction_overlay_preprocessed = preprocess_input(prediction_overlay_resized)
         prediction_overlay_batch = np.expand_dims(prediction_overlay_preprocessed, axis=0)
 
-        result = inception_model.predict(prediction_overlay_batch)
-        percentages = result[0] * 100
+        all_predictions = []
 
-        for i, percentage in enumerate(percentages):
-            print(f"Class {i}: {percentage:.2f}%")
+        for model in inception_models:
+            prediction_probabilities = model.predict(prediction_overlay_batch)
+            all_predictions.append(prediction_probabilities)
 
-        predicted_label = np.argmax(result, axis=1)[0]
-        predicted_class_label = class_labels.get(predicted_label, "Unknown") 
+        average_predictions = np.mean(all_predictions, axis=0)
+        predicted_labels = np.argmax(average_predictions, axis=1)
+        print(predicted_labels)
+        predicted_class_label = [class_labels[index] for index in predicted_labels]
 
         transparent_blue = [0.0, 0.0, 1.0, 0.1]
         contour_color = (255, 0, 0)

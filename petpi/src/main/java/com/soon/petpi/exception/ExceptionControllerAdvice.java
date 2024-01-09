@@ -57,7 +57,7 @@ public class ExceptionControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(NoPetError.class)
     public ErrorResult noPetError(NoPetError e) {
-        return new ErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), "존재하지 않는 반려동물입니다");
+        return new ErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), "보유하지 않은 반려동물입니다");
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)

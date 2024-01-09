@@ -52,10 +52,10 @@ public class ExceptionControllerAdvice {
         return new ErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), "파라미터 값의 형식이 잘못되었습니다");
     }
 
-    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
     @ExceptionHandler(SessionError.class)
     public ErrorResult sessionError(SessionError e) {
-        return new ErrorResult(HttpStatus.METHOD_NOT_ALLOWED.value(), HttpStatus.METHOD_NOT_ALLOWED.name(), e.getMessage());
+        return new ErrorResult(HttpStatus.FORBIDDEN.value(), HttpStatus.FORBIDDEN.name(), e.getMessage());
     }
 
     public String getMessage(String code, String defaultMessage) {

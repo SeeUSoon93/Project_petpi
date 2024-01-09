@@ -30,7 +30,6 @@ public class DiseaseStatusService {
         }
 
         DiseaseStatus d = diseaseRequestToDisease(diseaseStatusRequest);
-        d.setDiseaseDate(LocalDate.now());
         d.setPet(pet);
 
         diseaseStatusRepository.save(d);
@@ -43,6 +42,7 @@ public class DiseaseStatusService {
 
     public DiseaseStatus diseaseRequestToDisease(DiseaseStatusRequest diseaseStatusRequest) throws IOException {
         return DiseaseStatus.builder()
+                .diseaseDate(diseaseStatusRequest.getDiseaseDate())
                 .diseaseName(diseaseStatusRequest.getDiseaseName())
                 .diseaseLabel(diseaseStatusRequest.getDiseaseLabel())
                 .build();
@@ -80,6 +80,8 @@ public class DiseaseStatusService {
 
     public DiseaseStatusResponse DiseaseToDiseaseResponse(DiseaseStatus diseaseStatus) {
         return DiseaseStatusResponse.builder()
+                .diseaseIdx(diseaseStatus.getDiseaseIdx())
+                .diseaseDate(diseaseStatus.getDiseaseDate())
                 .diseaseName(diseaseStatus.getDiseaseName())
                 .diseaseLabel(diseaseStatus.getDiseaseLabel())
                 .build();

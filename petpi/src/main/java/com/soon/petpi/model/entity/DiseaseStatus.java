@@ -32,11 +32,11 @@ public class DiseaseStatus {
     private DiseaseLabel diseaseLabel;
 
     @Builder
-    public DiseaseStatus(Long diseaseIdx, Pet pet,
+    public DiseaseStatus(Long diseaseIdx, Pet pet, LocalDate diseaseDate,
                          String diseaseName, DiseaseLabel diseaseLabel) {
         this.diseaseIdx = diseaseIdx;
         this.pet = pet;
-        this.diseaseDate = LocalDate.now();
+        this.diseaseDate = diseaseDate;
         this.diseaseName = diseaseName;
         this.diseaseLabel = diseaseLabel;
     }

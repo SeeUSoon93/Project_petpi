@@ -18,7 +18,7 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
 
     Optional<List<Pet>> findByUser(User user);
 
-    @Query("select p, h from Pet p " +
+    @Query("select p from Pet p " +
             "join fetch p.healthStatuses h " +
             "where p.petIdx =:petIdx")
     Optional<Pet> findByIdCalender(@Param("petIdx")Long petIdx);

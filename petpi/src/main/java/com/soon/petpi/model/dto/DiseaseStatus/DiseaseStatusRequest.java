@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Setter
 @Getter
 @NoArgsConstructor
@@ -17,4 +19,6 @@ public class DiseaseStatusRequest {
     private String diseaseName;
 
     private DiseaseLabel diseaseLabel;
+
+    private LocalDate diseaseDate;
 }

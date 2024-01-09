@@ -31,7 +31,6 @@ public class HealthStatusService {
         }
 
         HealthStatus h = healthRequestToHealth(healthStatusRequest);
-        h.setHealthDate(LocalDate.now());
         h.setPet(pet);
 
         healthStatusRepository.save(h);
@@ -49,6 +48,7 @@ public class HealthStatusService {
 
     public HealthStatusResponse healthToHealthResponse(HealthStatus healthStatus){
         return HealthStatusResponse.builder()
+                .statusIdx(healthStatus.getStatusIdx())
                 .healthDate(healthStatus.getHealthDate())
                 .petWeight(healthStatus.getPetWeight())
                 .petPoo(healthStatus.getPetPoo())
@@ -58,24 +58,26 @@ public class HealthStatusService {
 
     public HealthStatus healthRequestToHealth(HealthStatusRequest healthStatusRequest) throws IOException{
         return HealthStatus.builder()
+                .healthDate(healthStatusRequest.getHealthDate())
                 .petWeight(healthStatusRequest.getPetWeight())
                 .petPoo(healthStatusRequest.getPetPoo())
                 .petPee(healthStatusRequest.getPetPee())
                 .build();
     }
 
-    public HealthStatus update(Long statusIdx, HealthStatusRequest healthStatusRequest) {
+    public HealthStatus update(Long statusIdx, HealthStatusRequest healthStatusRequest){
 
-        HealthStatus saveH = findOne(statusIdx);
+        HealthStatus h = findOne(statusIdx);
 
-        if(saveH != null){
-            saveH.setPetWeight(healthStatusRequest.getPetWeight());
-            saveH.setPetPoo(healthStatusRequest.getPetPoo());
-            saveH.setPetPee(healthStatusRequest.getPetPee());
-            return healthStatusRepository.save(saveH);
+        if(h == null){
+            return null;
         }
 
-        return null;
+        h.setPetWeight(healthStatusRequest.getPetWeight());
+        h.setPetPoo(healthStatusRequest.getPetPoo());
+        h.setPetPee(healthStatusRequest.getPetPee());
+
+        return healthStatusRepository.save(h);
     }
 
     public Boolean delete(Long statusIdx){

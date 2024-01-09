@@ -1,5 +1,7 @@
 package com.soon.petpi.argumentresolver;
 
+import com.soon.petpi.exception.type.NoUserError;
+import com.soon.petpi.exception.type.SessionError;
 import com.soon.petpi.model.entity.User;
 import com.soon.petpi.model.label.SessionConst;
 import com.soon.petpi.repository.UserRepository;
@@ -38,12 +40,18 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
 
         if (session == null) {
             log.info("@Login >> No Session");
-            return null;
+            throw new SessionError();
         }
 
         Long userIdx = (Long) session.getAttribute(SessionConst.USER_IDX);
         log.info("@Login resolveArgument Long userIdx -> User user");
 
-        return userRepository.findById(userIdx).orElse(null);
+        User user = userRepository.findById(userIdx).orElse(null);
+
+        if (user == null) {
+            throw new NoUserError();
+        }
+
+        return user;
     }
 }

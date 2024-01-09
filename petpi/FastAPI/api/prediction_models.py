@@ -1,12 +1,17 @@
 from tensorflow.keras.models import load_model
 
-model_path = ['model/unet01.h5',
+unet_model_path = ['model/unet01.h5',
               'model/unet02.h5',
               'model/unet03.h5'
               ]
 
-unet_models = [load_model(path)for path in model_path]
-inception_model = load_model('model/inceptionv3.h5')
+inception_model_path = ['model/inceptionResNetV2_model_11.h5',
+              'model/inceptionResNetV2_model_07.h5',
+              'model/inceptionResNetV2_model_10.h5'
+              ]
+
+unet_models = [load_model(path)for path in unet_model_path]
+inception_models = [load_model(path)for path in inception_model_path]
 
 class_labels = {
         0: 'A1_구진/플라크',

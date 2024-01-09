@@ -4,8 +4,9 @@ from tensorflow.keras.preprocessing.image import img_to_array, load_img
 from tensorflow.keras.applications.inception_v3 import preprocess_input
 from tensorflow.image import resize_with_pad as resize
 from io import BytesIO
-from utils import encode_image_to_base64
-from prediction_models import unet_models, inception_model, class_labels
+from api.utils import encode_image_to_base64
+from api.prediction_models import unet_models, inception_models, class_labels
+import cv2
 
 async def predict_image(file):
     try:
@@ -20,25 +21,43 @@ async def predict_image(file):
         threshold = 2 / len(unet_models)
         consensus_mask = np.where(np.sum(masks > 0.5, axis=0) >= threshold, 1, 0)
 
-        overlay = img_array.copy()
-        overlay[consensus_mask == 0] = [0, 0, 0]
+        prediction_overlay = img_array.copy()
+        prediction_overlay[consensus_mask == 0] = [0, 0, 0]
         inception_size = (299, 299)
-        overlay_resized = resize(overlay, inception_size[0], inception_size[1])
-        overlay_preprocessed = preprocess_input(overlay_resized)
-        overlay_batch = np.expand_dims(overlay_preprocessed, axis=0)
+        prediction_overlay_resized = resize(prediction_overlay, inception_size[0], inception_size[1])
+        prediction_overlay_preprocessed = preprocess_input(prediction_overlay_resized)
+        prediction_overlay_batch = np.expand_dims(prediction_overlay_preprocessed, axis=0)
 
-        result = inception_model.predict(overlay_batch)
-        percentages = result[0] * 100
+        all_predictions = []
 
-        for i, percentage in enumerate(percentages):
-            print(f"Class {i}: {percentage:.2f}%")
+        for model in inception_models:
+            prediction_probabilities = model.predict(prediction_overlay_batch)
+            all_predictions.append(prediction_probabilities)
 
-        predicted_label = np.argmax(result, axis=1)[0]
-        predicted_class_label = class_labels.get(predicted_label, "Unknown")    
+        average_predictions = np.mean(all_predictions, axis=0)
+        predicted_labels = np.argmax(average_predictions, axis=1)
+        print(predicted_labels)
+        predicted_class_label = [class_labels[index] for index in predicted_labels]
+
+        transparent_blue = [0.0, 0.0, 1.0, 0.1]
+        contour_color = (255, 0, 0)
+
+        overlay = img_array.copy()
+        for i in range(overlay.shape[0]):
+            for j in range(overlay.shape[1]):
+                if consensus_mask[i, j] == 1:                    
+                    overlay[i, j] = overlay[i, j] * (1 - transparent_blue[3]) + np.array(transparent_blue[:3]) * transparent_blue[3]
+
+        mask_cv2 = (consensus_mask * 255).astype(np.uint8)
+        contours, _ = cv2.findContours(mask_cv2, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+
+        overlay_bgr = cv2.cvtColor((overlay * 255).astype(np.uint8), cv2.COLOR_RGB2BGR)
+        cv2.drawContours(overlay_bgr, contours, -1, contour_color, 2) 
+        overlay_with_contours = cv2.cvtColor(overlay_bgr, cv2.COLOR_BGR2RGB) / 255.0
 
         return {
              "predicted_class_label": predicted_class_label,
-             "overlay": encode_image_to_base64(overlay),
+             "overlay": encode_image_to_base64(overlay_with_contours),
              "img": encode_image_to_base64(img_array)
              }
     except Exception as e:

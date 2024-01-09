@@ -10,11 +10,12 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
-@RestController
+@Controller
 @RequiredArgsConstructor
 @RequestMapping("/dev-user")
 public class DevUserController {
@@ -22,6 +23,7 @@ public class DevUserController {
     private final DevUserService devUserService;
 
     @PostMapping("/login")
+    @ResponseBody
     public UserResponse devLogin(@Valid @RequestBody DevLoginRequest devLoginRequest, BindingResult bindingResult,
                       HttpServletRequest request) {
 
@@ -41,4 +43,8 @@ public class DevUserController {
         return devUserService.convertToUserResponse(loginUser);
     }
 
+    @GetMapping("/kakao")
+    public String kakaoMap() {
+        return "map";
+    }
 }

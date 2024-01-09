@@ -28,3 +28,9 @@ openai:
 file:
   dir: /src/main/resources/pet-image/
 
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          servlet: info

@@ -31,7 +31,6 @@ public class HealthStatusService {
         }
 
         HealthStatus h = healthRequestToHealth(healthStatusRequest);
-        h.setHealthDate(LocalDate.now());
         h.setPet(pet);
 
         healthStatusRepository.save(h);
@@ -59,6 +58,7 @@ public class HealthStatusService {
 
     public HealthStatus healthRequestToHealth(HealthStatusRequest healthStatusRequest) throws IOException{
         return HealthStatus.builder()
+                .healthDate(healthStatusRequest.getHealthDate())
                 .petWeight(healthStatusRequest.getPetWeight())
                 .petPoo(healthStatusRequest.getPetPoo())
                 .petPee(healthStatusRequest.getPetPee())

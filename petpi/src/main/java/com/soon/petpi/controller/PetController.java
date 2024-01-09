@@ -25,29 +25,30 @@ public class PetController {
     private final PetService petService;
 
     @GetMapping()
-    public List<PetResponse> findAllPet(@Login User user) {
-        return petService.findAll(user);
+    public List<PetResponse> findAllPet(@Login Long userIdx) {
+        return petService.findAll(userIdx);
     }
 
     @PostMapping()
-    public PetResponse savePet(@Login User user,
+    public PetResponse savePet(@Login Long userIdx,
                        @Valid @ModelAttribute PetRequest petRequest, BindingResult bindingResult) throws IOException {
+
         // fieldError가 발생했는지 검증하여 에러가 존재하면 FieldException
         if (bindingResult.hasErrors()) {
             log.info("error = {}", bindingResult);
             throw new FieldErrorException(bindingResult);
         }
 
-        return petService.petToPetResponse(petService.save(user, petRequest));
+        return petService.petToPetResponse(petService.save(userIdx, petRequest));
     }
 
     @GetMapping("/{petIdx}")
-    public PetResponse changePet(@PathVariable(name = "petIdx") Long petIdx) {
-        return petService.petToPetResponse(petService.findOne(petIdx));
+    public PetResponse changePet(@Login Long userIdx, @PathVariable(name = "petIdx") Long petIdx) {
+        return petService.petToPetResponse(petService.findOne(petIdx, userIdx));
     }
 
     @PatchMapping("/{petIdx}")
-    public PetResponse updatePet(@PathVariable(name = "petIdx") Long petIdx,
+    public PetResponse updatePet(@Login Long userIdx, @PathVariable(name = "petIdx") Long petIdx,
                          @Valid @ModelAttribute PetRequest petRequest, BindingResult bindingResult) throws IOException {
         // fieldError가 발생했는지 검증하여 에러가 존재하면 FieldException
         if (bindingResult.hasErrors()) {
@@ -55,16 +56,16 @@ public class PetController {
             throw new FieldErrorException(bindingResult);
         }
 
-        return petService.petToPetResponse(petService.update(petIdx, petRequest));
+        return petService.petToPetResponse(petService.update(petIdx, userIdx, petRequest));
     }
 
     @DeleteMapping("/{petIdx}")
-    public Boolean deletePet(@PathVariable(name = "petIdx") Long petIdx) {
-        return petService.delete(petIdx);
+    public Boolean deletePet(@Login Long userIdx, @PathVariable(name = "petIdx") Long petIdx) {
+        return petService.delete(petIdx, userIdx);
     }
 
-    @GetMapping("/calenders/{petIdx}")
-    public PetCalenderResponse readCalender(@PathVariable(name = "petIdx") Long petIdx) {
-        return petService.readCalender(petIdx);
+    @GetMapping("/{petIdx}/calenders")
+    public PetCalenderResponse readCalender(@Login Long userIdx, @PathVariable(name = "petIdx") Long petIdx) {
+        return petService.readCalender(petIdx, userIdx);
     }
 }

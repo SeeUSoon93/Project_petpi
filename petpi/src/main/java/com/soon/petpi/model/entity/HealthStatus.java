@@ -30,11 +30,11 @@ public class HealthStatus {
     private String petPee;
 
     @Builder
-    public HealthStatus(Long statusIdx, Pet pet,
+    public HealthStatus(Long statusIdx, Pet pet, LocalDate healthDate,
                         int petWeight, String petPoo, String petPee) {
         this.statusIdx = statusIdx;
         this.pet = pet;
-        this.healthDate = LocalDate.now();
+        this.healthDate = healthDate;
         this.petWeight = petWeight;
         this.petPoo = petPoo;
         this.petPee = petPee;

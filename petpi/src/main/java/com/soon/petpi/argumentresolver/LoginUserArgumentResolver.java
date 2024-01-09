@@ -27,9 +27,9 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     public boolean supportsParameter(MethodParameter parameter) {
 
         boolean hasLoginAnnotation = parameter.hasParameterAnnotation(Login.class);
-        boolean hasUserType = User.class.isAssignableFrom(parameter.getParameterType());
+        boolean hasLongType = Long.class.isAssignableFrom(parameter.getParameterType());
 
-        return hasLoginAnnotation && hasUserType;
+        return hasLoginAnnotation && hasLongType;
     }
 
     @Override
@@ -37,21 +37,14 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
 
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         HttpSession session = request.getSession(false);
-
+        
+        // session이 존재하지 않으면 로그인 되지 않은 사용자
+        // SessionError 반환
         if (session == null) {
             log.info("@Login >> No Session");
             throw new SessionError();
         }
 
-        Long userIdx = (Long) session.getAttribute(SessionConst.USER_IDX);
-        log.info("@Login resolveArgument Long userIdx -> User user");
-
-        User user = userRepository.findById(userIdx).orElse(null);
-
-        if (user == null) {
-            throw new NoUserError();
-        }
-
-        return user;
+        return (Long) session.getAttribute(SessionConst.USER_IDX);
     }
 }

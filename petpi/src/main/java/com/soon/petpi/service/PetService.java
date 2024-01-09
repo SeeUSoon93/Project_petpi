@@ -7,6 +7,7 @@ import com.soon.petpi.model.dto.pet.PetResponse;
 import com.soon.petpi.model.entity.Pet;
 import com.soon.petpi.model.entity.User;
 import com.soon.petpi.repository.PetRepository;
+import com.soon.petpi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,37 +26,43 @@ public class PetService {
 
     private final PetRepository petRepository;
     private final FileStoreService fileStoreService;
+    private final UserRepository userRepository;
 
-    public Pet save(User user, PetRequest petRequest) throws IOException {
+    public Pet save(Long userIdx, PetRequest petRequest) throws IOException {
+
+        User petOwner = userRepository.findById(userIdx).orElse(null);
 
         Pet pet = petRequestToPet(petRequest);
-        pet.setUser(user);
+        pet.setUser(petOwner);
 
         petRepository.save(pet);
 
         return pet;
     }
 
-    public List<PetResponse> findAll(User user) {
+    public List<PetResponse> findAll(Long userIdx) {
 
-        Optional<List<Pet>> petsOptional = petRepository.findByUser(user);
+        Optional<List<Pet>> petsOptional = petRepository.findByUserIdx(userIdx);
         return petsOptional.map(pets ->
                 pets.stream().map(this::petToPetResponse)
                         .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
     }
 
-    public Pet findOne(Long petIdx) {
-        return petRepository.findById(petIdx).orElse(null);
-    }
+    public Pet findOne(Long petIdx, Long userIdx) {
+        Pet pet = petRepository.findByIdAndUserIdx(petIdx, userIdx).orElse(null);
 
-    public Pet update(Long petIdx, PetRequest petRequest) throws IOException {
-
-        Pet savedPet = findOne(petIdx);
-
-        if (savedPet == null) {
+        if (pet == null) {
             throw new NoPetError();
         }
+        return pet;
+    }
+
+    public Pet update(Long petIdx, Long userIdx, PetRequest petRequest) throws IOException {
+
+        Pet savedPet = findOne(petIdx, userIdx);
+
+        log.info(savedPet.getPetIdx().toString());
 
         if (savedPet.getPetImage() !=null && petRequest.getPetImage().equals(savedPet.getPetImage())) {
             fileStoreService.delete(savedPet.getPetImage());
@@ -71,13 +78,9 @@ public class PetService {
         return petRepository.save(savedPet);
     }
 
-    public Boolean delete(Long petIdx) {
+    public Boolean delete(Long petIdx, Long userIdx) {
 
-        Pet deletePet = findOne(petIdx);
-
-        if (deletePet==null) {
-            throw new NoPetError();
-        }
+        Pet deletePet = findOne(petIdx, userIdx);
 
         if (deletePet.getPetImage() != null) {
             fileStoreService.delete(deletePet.getPetImage());
@@ -88,8 +91,9 @@ public class PetService {
         return true;
     }
 
-    public PetCalenderResponse readCalender(Long petIdx) {
-        Pet savedPet = petRepository.findByIdCalender(petIdx).orElse(null);
+    public PetCalenderResponse readCalender(Long petIdx, Long userIdx) {
+        Pet savedPet = petRepository.findByIdCalenderAndUserIdx(petIdx, userIdx).orElse(null);
+
         if (savedPet == null) {
             throw new NoPetError();
         }

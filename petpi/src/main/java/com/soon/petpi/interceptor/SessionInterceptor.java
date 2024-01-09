@@ -1,6 +1,7 @@
 package com.soon.petpi.interceptor;
 
 import com.soon.petpi.exception.type.SessionError;
+import com.soon.petpi.model.label.SessionConst;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -17,7 +18,7 @@ public class SessionInterceptor implements HandlerInterceptor {
             throw new SessionError();
         }
 
-        log.info("session = {}", session);
+        log.info("session [userIdx] = {}", session.getAttribute(SessionConst.USER_IDX));
 
         return true;
     }

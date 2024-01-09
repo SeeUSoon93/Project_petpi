@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>반려견 피부질환 사진 업로드</h1>
+    <input type="file" id="fileInput">
+    <button onclick="uploadAndPredict()">전송</button>
+    <div id="predictionResult"></div>
+    <img id="originImage" src="" alt="원본 이미지" />
+    <img id="overlayImage" src="" alt="오버레이 이미지" />
+
+    <script>
+        async function uploadAndPredict() {
+            const input = document.getElementById('fileInput');
+            const data = new FormData();
+            data.append('file', input.files[0]);
+
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: data
+            });
+
+            const result = await response.json();
+            document.getElementById('predictionResult').innerText = '진단결과: ' + result.predicted_class_label;
+            // Base64 인코딩된 이미지 데이터를 img 태그의 src 속성에 할당
+            if (result.img) {
+                document.getElementById('originImage').src = 'data:image/jpeg;base64,' + result.img;
+            }
+            if (result.overlay) {
+                document.getElementById('overlayImage').src = 'data:image/jpeg;base64,' + result.overlay;
+            }
+        }
+    </script>
+</body>
+</html>

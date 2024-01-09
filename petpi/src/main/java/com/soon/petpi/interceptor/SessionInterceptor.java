@@ -14,7 +14,7 @@ public class SessionInterceptor implements HandlerInterceptor {
 
         HttpSession session = request.getSession(false);
         if (session == null) {
-            throw new SessionError("로그인되지 않은 사용자입니다");
+            throw new SessionError();
         }
 
         log.info("session = {}", session);

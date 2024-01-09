@@ -1,5 +1,6 @@
 package com.soon.petpi.service;
 
+import com.soon.petpi.exception.type.NoPetError;
 import com.soon.petpi.model.dto.pet.PetCalenderResponse;
 import com.soon.petpi.model.dto.pet.PetRequest;
 import com.soon.petpi.model.dto.pet.PetResponse;
@@ -27,10 +28,6 @@ public class PetService {
 
     public Pet save(User user, PetRequest petRequest) throws IOException {
 
-        if (user == null) {
-            return null;
-        }
-
         Pet pet = petRequestToPet(petRequest);
         pet.setUser(user);
 
@@ -40,10 +37,6 @@ public class PetService {
     }
 
     public List<PetResponse> findAll(User user) {
-
-        if (user == null) {
-            return null;
-        }
 
         Optional<List<Pet>> petsOptional = petRepository.findByUser(user);
         return petsOptional.map(pets ->
@@ -61,26 +54,29 @@ public class PetService {
         Pet savedPet = findOne(petIdx);
 
         if (savedPet == null) {
-            return null;
+            throw new NoPetError();
         }
 
-        if (savedPet.getPetImage() != null) {
+        if (savedPet.getPetImage() !=null && petRequest.getPetImage().equals(savedPet.getPetImage())) {
             fileStoreService.delete(savedPet.getPetImage());
         }
 
-        Pet updatePet = petRequestToPet(petRequest);
-        updatePet.setPetIdx(savedPet.getPetIdx());
-        updatePet.setUser(savedPet.getUser());
+        // Pet 객체 업데이트
+        savedPet.setPetName(petRequest.getPetName());
+        savedPet.setPetImage(fileStoreService.uploadFile(petRequest.getPetImage()).getStoreName());
+        savedPet.setPetGender(petRequest.getPetGender());
+        savedPet.setPetSpecies(petRequest.getPetSpecies());
+        savedPet.setPetBirthdate(petRequest.getPetBirthdate());
 
-        return petRepository.save(updatePet);
+        return petRepository.save(savedPet);
     }
 
     public Boolean delete(Long petIdx) {
 
         Pet deletePet = findOne(petIdx);
 
-        if(deletePet==null) {
-            return false;
+        if (deletePet==null) {
+            throw new NoPetError();
         }
 
         if (deletePet.getPetImage() != null) {
@@ -94,9 +90,8 @@ public class PetService {
 
     public PetCalenderResponse readCalender(Long petIdx) {
         Pet savedPet = petRepository.findByIdCalender(petIdx).orElse(null);
-
         if (savedPet == null) {
-            return null;
+            throw new NoPetError();
         }
 
         return petToPetCalenderResponse(savedPet);

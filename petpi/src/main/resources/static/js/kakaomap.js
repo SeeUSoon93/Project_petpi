@@ -45,7 +45,7 @@ function placeSearchCB(data, status, pagination) {
 }
 
 // 검색 결과 목록과 마커를 표출하는 함수입니다
-function displayPlaces(places) {
+function displayPlaces(places) { // places = keywordSearch() ->  placeSearchCB() 결과값
 
     var listEl = document.getElementById('placesList'),
     menuEl = document.getElementById('menu_wrap'),
@@ -103,7 +103,7 @@ function displayPlaces(places) {
 }
 
 // 검색결과 항목을 Element로 반환하는 함수입니다
-function getListItem(index, places) {
+function getListItem(index, places) { // places = keywordSearch() ->  placeSearchCB() 결과값
 
     var el = document.createElement('li'),
     itemStr = '<span class="markerbg marker_' + (index+1) + '"></span>' +
@@ -126,7 +126,7 @@ function getListItem(index, places) {
     return el;
 }
 
-// 마커를 생성하고 지도 위에 마커를 표시하는 함수입니다
+// 마커를 생성하고 지도 위에 마커를 표시하는 함수입니다 ---- 마커 이미지 변경 가능한 부분 ----
 function addMarker(position, idx, title) {
     var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png', // 마커 이미지 url, 스프라이트 이미지를 씁니다
         imageSize = new kakao.maps.Size(36, 37),  // 마커 이미지의 크기

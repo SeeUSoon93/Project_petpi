@@ -3,6 +3,8 @@ package com.soon.petpi.exception;
 import com.soon.petpi.exception.response.ErrorResult;
 import com.soon.petpi.exception.response.FieldErrorResult;
 import com.soon.petpi.exception.type.FieldErrorException;
+import com.soon.petpi.exception.type.NoPetError;
+import com.soon.petpi.exception.type.NoUserError;
 import com.soon.petpi.exception.type.SessionError;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,10 +54,22 @@ public class ExceptionControllerAdvice {
         return new ErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), "파라미터 값의 형식이 잘못되었습니다");
     }
 
-    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(NoPetError.class)
+    public ErrorResult noPetError(NoPetError e) {
+        return new ErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), "존재하지 않는 반려동물입니다");
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(SessionError.class)
     public ErrorResult sessionError(SessionError e) {
-        return new ErrorResult(HttpStatus.METHOD_NOT_ALLOWED.value(), HttpStatus.METHOD_NOT_ALLOWED.name(), e.getMessage());
+        return new ErrorResult(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.name(), "로그인되지 않은 사용자입니다");
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(NoUserError.class)
+    public ErrorResult noUserError(NoUserError e) {
+        return new ErrorResult(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.name(), "존재하지 않는 사용자입니다");
     }
 
     public String getMessage(String code, String defaultMessage) {

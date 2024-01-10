@@ -17,12 +17,12 @@ import java.io.IOException;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user/disease")
+@RequestMapping("user/pets")
 public class DiseaseStatusController {
 
     private final DiseaseStatusService diseaseStatusService;
 
-    @PostMapping("/save/{petIdx}")
+    @PostMapping("/{petIdx}/disease-statuses")
     public DiseaseStatusResponse saveDiseaseStatus(@PathVariable(name = "petIdx") Long petIdx,
                                                    @Valid @RequestBody DiseaseStatusRequest diseaseStatusRequest, BindingResult bindingResult)throws IOException {
         if(bindingResult.hasErrors()){
@@ -33,7 +33,7 @@ public class DiseaseStatusController {
         return diseaseStatusService.DiseaseToDiseaseResponse(diseaseStatusService.save(petIdx, diseaseStatusRequest));
     }
 
-    @PatchMapping("/{diseaseIdx}")
+    @PatchMapping("/{petIdx}/disease-statuses/{diseaseIdx}")
     public DiseaseStatusResponse updateDiseaseStatus(@PathVariable(name="diseaseIdx")Long diseaseIdx,
                                                      @Valid @RequestBody DiseaseStatusRequest diseaseStatusRequest, BindingResult bindingResult) throws IOException {
 
@@ -45,8 +45,8 @@ public class DiseaseStatusController {
         return diseaseStatusService.DiseaseToDiseaseResponse(diseaseStatusService.update(diseaseIdx, diseaseStatusRequest));
     }
 
-    @DeleteMapping("/{diseaseIdx}")
-    public Boolean deleteDisease(@PathVariable(name = "diseaseIdx")Long diseaseIdx){
+    @DeleteMapping("/{petIdx}/disease-statuses/{diseaseIdx}")
+    public Boolean deleteDiseaseStatus(@PathVariable(name = "diseaseIdx")Long diseaseIdx){
         return diseaseStatusService.delete(diseaseIdx);
     }
 }

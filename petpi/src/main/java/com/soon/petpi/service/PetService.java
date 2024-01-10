@@ -4,6 +4,7 @@ import com.soon.petpi.exception.type.NoPetError;
 import com.soon.petpi.model.dto.pet.PetCalenderResponse;
 import com.soon.petpi.model.dto.pet.PetRequest;
 import com.soon.petpi.model.dto.pet.PetResponse;
+import com.soon.petpi.model.dto.pet.PetSaveForm;
 import com.soon.petpi.model.entity.Pet;
 import com.soon.petpi.model.entity.User;
 import com.soon.petpi.repository.PetRepository;
@@ -12,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -28,11 +28,11 @@ public class PetService {
     private final FileStoreService fileStoreService;
     private final UserRepository userRepository;
 
-    public Pet save(Long userIdx, PetRequest petRequest) throws IOException {
+    public Pet save(Long userIdx, PetSaveForm petSaveForm) throws IOException {
 
         User petOwner = userRepository.findById(userIdx).orElse(null);
 
-        Pet pet = petRequestToPet(petRequest);
+        Pet pet = petSaveFormToPet(petSaveForm);
         pet.setUser(petOwner);
 
         petRepository.save(pet);
@@ -62,18 +62,25 @@ public class PetService {
 
         Pet savedPet = findOne(petIdx, userIdx);
 
-        log.info(savedPet.getPetIdx().toString());
-
-        if (savedPet.getPetImage() !=null && petRequest.getPetImage().equals(savedPet.getPetImage())) {
-            fileStoreService.delete(savedPet.getPetImage());
-        }
+        log.info(petRequest.toString());
 
         // Pet 객체 업데이트
-        savedPet.setPetName(petRequest.getPetName());
-        savedPet.setPetImage(fileStoreService.uploadFile(petRequest.getPetImage()).getStoreName());
-        savedPet.setPetGender(petRequest.getPetGender());
-        savedPet.setPetSpecies(petRequest.getPetSpecies());
-        savedPet.setPetBirthdate(petRequest.getPetBirthdate());
+        if (petRequest.getPetName() != null) {
+            savedPet.setPetName(petRequest.getPetName());
+        }
+        if (petRequest.getPetImage() != null) {
+            fileStoreService.delete(savedPet.getPetImage());
+            savedPet.setPetImage(fileStoreService.uploadFile(petRequest.getPetImage()).getStoreName());
+        }
+        if (petRequest.getPetGender() != null) {
+            savedPet.setPetGender(petRequest.getPetGender());
+        }
+        if (petRequest.getPetSpecies() != null) {
+            savedPet.setPetSpecies(petRequest.getPetSpecies());
+        }
+        if (petRequest.getPetBirthdate() != null) {
+            savedPet.setPetBirthdate(petRequest.getPetBirthdate());
+        }
 
         return petRepository.save(savedPet);
     }
@@ -120,6 +127,17 @@ public class PetService {
                 .petImage(fileStoreService.uploadFile(petRequest.getPetImage())
                         .getStoreName())
                 .petGender(petRequest.getPetGender())
+                .build();
+    }
+
+    public Pet petSaveFormToPet(PetSaveForm petSaveForm) throws IOException {
+        return Pet.builder()
+                .petName(petSaveForm.getPetName())
+                .petSpecies(petSaveForm.getPetSpecies())
+                .petBirthdate(petSaveForm.getPetBirthdate())
+                .petImage(fileStoreService.uploadFile(petSaveForm.getPetImage())
+                        .getStoreName())
+                .petGender(petSaveForm.getPetGender())
                 .build();
     }
 

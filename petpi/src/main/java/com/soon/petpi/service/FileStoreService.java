@@ -29,8 +29,9 @@ public class FileStoreService {
     }
 
     public UploadImage uploadFile(MultipartFile multipartFile) throws IOException {
+
         if (multipartFile.isEmpty()) {
-            return null;
+            return new UploadImage(null, null);
         }
 
         String originalFilename = multipartFile.getOriginalFilename();

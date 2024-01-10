@@ -12,15 +12,17 @@ import java.util.Optional;
 
 public interface PetRepository extends JpaRepository<Pet, Long> {
 
-    @EntityGraph(attributePaths = {"healthStatuses"}, type = EntityGraph.EntityGraphType.FETCH)
-    @Query("select distinct p from Pet p where p.petIdx =:petIdx")
-    Optional<Pet> findByIdEntityGraph(@Param("petIdx") Long petIdx);
+    @Query("select p from Pet p " +
+            "where p.user.userIdx = :userIdx")
+    Optional<List<Pet>> findByUserIdx(@Param("userIdx")Long userIdx);
 
-    Optional<List<Pet>> findByUser(User user);
-
-    @Query("select p, h from Pet p " +
+    @Query("select p from Pet p " +
             "join fetch p.healthStatuses h " +
             "where p.petIdx =:petIdx")
-    Optional<Pet> findByIdCalender(@Param("petIdx")Long petIdx);
+    Optional<Pet> findByIdCalenderAndUserIdx(@Param("petIdx")Long petIdx, @Param("userIdx")Long userIdx);
+
+    @Query("select p from Pet p " +
+            "where p.petIdx = :petIdx and p.user.userIdx = :userIdx")
+    Optional<Pet> findByIdAndUserIdx(@Param("petIdx")Long petIdx, @Param("userIdx")Long userIdx);
 
 }

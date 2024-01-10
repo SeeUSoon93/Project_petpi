@@ -21,5 +21,16 @@ server:
       tracking-modes: cookie
   port: 9090
 
+openai:
+  api-key: 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
+  model: gpt-3.5-turbo
+
 file:
   dir: /src/main/resources/pet-image/
+
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          servlet: info

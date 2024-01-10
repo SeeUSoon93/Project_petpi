@@ -18,12 +18,12 @@ import java.io.IOException;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/user/health")
+@RequestMapping("user/pets")
 public class HealthStatusController {
 
     private final HealthStatusService healthStatusService;
 
-    @PostMapping("/save/{petIdx}")
+    @PostMapping("/{petIdx}/health-status")
     public HealthStatusResponse saveHealthStatus(@PathVariable(name = "petIdx") Long petIdx,
                                                  @Valid @RequestBody HealthStatusRequest healthStatusRequest, BindingResult bindingResult)throws IOException {
         if(bindingResult.hasErrors()){
@@ -33,10 +33,9 @@ public class HealthStatusController {
         return healthStatusService.healthToHealthResponse(healthStatusService.save(petIdx, healthStatusRequest));
     }
 
-    @PatchMapping("/{statusIdx}")
-    public HealthStatusResponse updateHealthStatus(@PathVariable(name = "statusIdx") Long statusIdx,
-                                                   @Valid @ModelAttribute HealthStatusRequest healthStatusRequest, BindingResult bindingResult) throws IOException {
-
+    @PatchMapping("/{petIdx}/health-status/{statusIdx}")
+    public HealthStatusResponse updateHealthStatus(@PathVariable(name="statusIdx")Long statusIdx,
+                                                   @Valid @RequestBody HealthStatusRequest healthStatusRequest, BindingResult bindingResult) throws IOException {
         if (bindingResult.hasErrors()) {
             log.info("error = {}", bindingResult);
             throw new FieldErrorException(bindingResult);
@@ -45,7 +44,7 @@ public class HealthStatusController {
         return healthStatusService.healthToHealthResponse(healthStatusService.update(statusIdx, healthStatusRequest));
     }
 
-    @DeleteMapping("/{statusIdx}")
+    @DeleteMapping("/{petIdx}/health-status/{statusIdx}")
     public Boolean deleteHealthStatus(@PathVariable(name = "statusIdx")Long statusIdx){
         return healthStatusService.delete(statusIdx);
     }

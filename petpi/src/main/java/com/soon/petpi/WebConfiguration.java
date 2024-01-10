@@ -33,6 +33,6 @@ public class WebConfiguration implements WebMvcConfigurer {
         registry.addInterceptor(new SessionInterceptor())
                 .order(2)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/css/**", "/*.ico", "/error", "/dev-user/**");
+                .excludePathPatterns("/css/**", "/*.ico", "/error", "/dev-user/**", "/js/**");
     }
 }

@@ -2,8 +2,10 @@ package com.soon.petpi.service;
 
 import com.soon.petpi.exception.type.NoPetError;
 import com.soon.petpi.model.dto.pet.PetCalenderResponse;
-import com.soon.petpi.model.dto.pet.PetRequest;
+import com.soon.petpi.model.dto.pet.request.PetRequest;
+import com.soon.petpi.model.dto.pet.request.PetUpdateForm;
 import com.soon.petpi.model.dto.pet.PetResponse;
+import com.soon.petpi.model.dto.pet.request.PetSaveForm;
 import com.soon.petpi.model.entity.Pet;
 import com.soon.petpi.model.entity.User;
 import com.soon.petpi.repository.PetRepository;
@@ -12,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -28,11 +29,11 @@ public class PetService {
     private final FileStoreService fileStoreService;
     private final UserRepository userRepository;
 
-    public Pet save(Long userIdx, PetRequest petRequest) throws IOException {
+    public Pet save(Long userIdx, PetSaveForm petSaveForm) throws IOException {
 
         User petOwner = userRepository.findById(userIdx).orElse(null);
 
-        Pet pet = petRequestToPet(petRequest);
+        Pet pet = petRequsetToPet(petSaveForm);
         pet.setUser(petOwner);
 
         petRepository.save(pet);
@@ -40,13 +41,8 @@ public class PetService {
         return pet;
     }
 
-    public List<PetResponse> findAll(Long userIdx) {
-
-        Optional<List<Pet>> petsOptional = petRepository.findByUserIdx(userIdx);
-        return petsOptional.map(pets ->
-                pets.stream().map(this::petToPetResponse)
-                        .collect(Collectors.toList()))
-                .orElse(Collections.emptyList());
+    public List<Pet> findAll(Long userIdx) {
+        return petRepository.findByUserIdx(userIdx).orElse(null);
     }
 
     public Pet findOne(Long petIdx, Long userIdx) {
@@ -58,22 +54,29 @@ public class PetService {
         return pet;
     }
 
-    public Pet update(Long petIdx, Long userIdx, PetRequest petRequest) throws IOException {
+    public Pet update(Long petIdx, Long userIdx, PetUpdateForm petUpdateForm) throws IOException {
 
         Pet savedPet = findOne(petIdx, userIdx);
 
-        log.info(savedPet.getPetIdx().toString());
+        log.info(petUpdateForm.toString());
 
-        if (savedPet.getPetImage() !=null && petRequest.getPetImage().equals(savedPet.getPetImage())) {
-            fileStoreService.delete(savedPet.getPetImage());
+        // PetUpdateForm 변경 값이 존재하는 지 판단하고 해당 부분만을 수정
+        if (petUpdateForm.getPetName() != null) {
+            savedPet.setPetName(petUpdateForm.getPetName());
         }
-
-        // Pet 객체 업데이트
-        savedPet.setPetName(petRequest.getPetName());
-        savedPet.setPetImage(fileStoreService.uploadFile(petRequest.getPetImage()).getStoreName());
-        savedPet.setPetGender(petRequest.getPetGender());
-        savedPet.setPetSpecies(petRequest.getPetSpecies());
-        savedPet.setPetBirthdate(petRequest.getPetBirthdate());
+        if (petUpdateForm.getPetImage() != null) {
+            fileStoreService.delete(savedPet.getPetImage());
+            savedPet.setPetImage(fileStoreService.uploadFile(petUpdateForm.getPetImage()).getStoreName());
+        }
+        if (petUpdateForm.getPetGender() != null) {
+            savedPet.setPetGender(petUpdateForm.getPetGender());
+        }
+        if (petUpdateForm.getPetSpecies() != null) {
+            savedPet.setPetSpecies(petUpdateForm.getPetSpecies());
+        }
+        if (petUpdateForm.getPetBirthdate() != null) {
+            savedPet.setPetBirthdate(petUpdateForm.getPetBirthdate());
+        }
 
         return petRepository.save(savedPet);
     }
@@ -92,6 +95,7 @@ public class PetService {
     }
 
     public PetCalenderResponse readCalender(Long petIdx, Long userIdx) {
+
         Pet savedPet = petRepository.findByIdCalenderAndUserIdx(petIdx, userIdx).orElse(null);
 
         if (savedPet == null) {
@@ -101,8 +105,9 @@ public class PetService {
         return petToPetCalenderResponse(savedPet);
     }
 
-    public PetResponse petToPetResponse(Pet pet) {
+    public PetResponse petToPetResponse(Pet pet, Long userIdx) {
         return PetResponse.builder()
+                .userIdx(userIdx)
                 .petIdx(pet.getPetIdx())
                 .petSpecies(pet.getPetSpecies())
                 .petBirthdate(pet.getPetBirthdate())
@@ -112,14 +117,14 @@ public class PetService {
                 .build();
     }
 
-    public Pet petRequestToPet(PetRequest petRequest) throws IOException {
+    public Pet petRequsetToPet(PetRequest request) throws IOException {
         return Pet.builder()
-                .petName(petRequest.getPetName())
-                .petSpecies(petRequest.getPetSpecies())
-                .petBirthdate(petRequest.getPetBirthdate())
-                .petImage(fileStoreService.uploadFile(petRequest.getPetImage())
+                .petName(request.getPetName())
+                .petSpecies(request.getPetSpecies())
+                .petBirthdate(request.getPetBirthdate())
+                .petImage(fileStoreService.uploadFile(request.getPetImage())
                         .getStoreName())
-                .petGender(petRequest.getPetGender())
+                .petGender(request.getPetGender())
                 .build();
     }
 
@@ -135,7 +140,7 @@ public class PetService {
                                 .diseaseName(disease.getDiseaseName())
                                 .diseaseLabel(disease.getDiseaseLabel())
                                 .build()
-                ).collect(Collectors.toList()))
+                ).toList())
 
                 .calenderHealthStatuses(pet.getHealthStatuses().stream().map(
                         health -> PetCalenderResponse.CalenderHealthStatuses.builder()
@@ -145,7 +150,7 @@ public class PetService {
                                 .petPoo(health.getPetPoo())
                                 .petPee(health.getPetPee())
                                 .build()
-                ).collect(Collectors.toList()))
+                ).toList())
                 .build();
     }
 }

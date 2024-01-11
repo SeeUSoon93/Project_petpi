@@ -1,9 +1,10 @@
 package com.soon.petpi.model.dto.pet;
 
-import com.soon.petpi.model.label.PetGender;
-import com.soon.petpi.model.label.PetSpecies;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.soon.petpi.model.dto.pet.request.PetUpdateForm;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.validation.BindingResult;
 
 import java.time.LocalDate;
 
@@ -16,4 +17,7 @@ public class PetResponse {
     private String petGender;
     private String petName;
     private String petImage;
+
+    @JsonIgnore
+    private Long userIdx;
 }

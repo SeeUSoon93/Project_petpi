@@ -1,32 +1,45 @@
-package com.soon.petpi.model.dto.pet;
+package com.soon.petpi.model.dto.pet.request;
 
 import com.soon.petpi.model.label.PetGender;
 import com.soon.petpi.model.label.PetSpecies;
-import lombok.*;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 
-@ToString
-@Setter @Getter
+@Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PetRequest {
+public class PetSaveForm implements PetRequest {
 
     private static PetGender[] genderList = {PetGender.MALE, PetGender.FEMALE};
     private static PetSpecies[] speciesList = {PetSpecies.DOG, PetSpecies.CAT};
 
+    @NotNull
     @Range(min = 0, max = 1)
     private Integer petSpecies;
 
+    @NotNull
     @Range(min = 0, max = 1)
     private Integer petGender;
 
+    @NotNull
+    @Past
     private LocalDate petBirthdate;
 
+    @NotBlank
     private String petName;
 
+    @Nullable
     private MultipartFile petImage;
 
     public PetSpecies getPetSpecies() {
@@ -42,5 +55,4 @@ public class PetRequest {
         }
         return null;
     }
-
 }

@@ -19,10 +19,10 @@ public class PetResponseAssembler implements RepresentationModelAssembler<PetRes
         return EntityModel.of(entity,
                 linkTo(methodOn(PetController.class).findAllPet(entity.getUserIdx())).withRel("collection"),
                 linkTo(methodOn(PetController.class).findOnePet(entity.getUserIdx(), entity.getPetIdx())).withRel("detail"),
-                linkTo(methodOn(PetController.class).updatePet(entity.getUserIdx(), entity.getPetIdx(), entity.getPetRequest(), entity.getBindingResult())).withRel("update"),
+                linkTo(methodOn(PetController.class).updatePet(entity.getUserIdx(), entity.getPetIdx(), null, null)).withRel("update"),
                 linkTo(methodOn(PetController.class).deletePet(entity.getUserIdx(), entity.getPetIdx())).withRel("delete"),
                 linkTo(methodOn(PetController.class).readCalender(entity.getUserIdx(), entity.getPetIdx())).withRel("readCalender"),
-                Link.of("https://app.gitbook.com/o/q7cn1abVzBDpZmQuw6s2/s/N3YIzkli6HnrXECacyfi/").withRel("Docs")
+                Link.of("https://petpi-project.gitbook.io/petpi-api-spec/").withRel("Docs")
         );
     }
 }

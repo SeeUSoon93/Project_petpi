@@ -1,6 +1,7 @@
 package com.soon.petpi.model.dto.pet;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.soon.petpi.model.dto.pet.request.PetUpdateForm;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.validation.BindingResult;
@@ -19,8 +20,4 @@ public class PetResponse {
 
     @JsonIgnore
     private Long userIdx;
-    @JsonIgnore
-    private PetRequest petRequest;
-    @JsonIgnore
-    private BindingResult bindingResult;
 }

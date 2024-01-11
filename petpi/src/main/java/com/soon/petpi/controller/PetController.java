@@ -3,9 +3,10 @@ package com.soon.petpi.controller;
 import com.soon.petpi.exception.type.FieldErrorException;
 import com.soon.petpi.model.dto.DeleteResult;
 import com.soon.petpi.model.dto.pet.PetCalenderResponse;
-import com.soon.petpi.model.dto.pet.PetRequest;
+import com.soon.petpi.model.dto.pet.request.PetUpdateForm;
 import com.soon.petpi.model.dto.pet.PetResponse;
-import com.soon.petpi.model.dto.pet.PetSaveForm;
+import com.soon.petpi.model.dto.pet.request.PetSaveForm;
+import com.soon.petpi.model.entity.Pet;
 import com.soon.petpi.service.PetService;
 import com.soon.petpi.service.assembler.PetResponseAssembler;
 import jakarta.validation.Valid;
@@ -31,8 +32,11 @@ public class PetController {
 
     @GetMapping()
     public CollectionModel<EntityModel<PetResponse>> findAllPet(@PathVariable(name = "userIdx") Long userIdx) {
-        List<EntityModel<PetResponse>> petResponses = petService.findAll(userIdx).stream()
-                .peek(petResponse -> petResponse.setUserIdx(userIdx))
+
+        List<Pet> pets = petService.findAll(userIdx);
+
+        List<EntityModel<PetResponse>> petResponses = pets.stream()
+                .map(pet -> petService.petToPetResponse(pet, userIdx))
                 .map(assembler::toModel)
                 .toList();
 
@@ -47,7 +51,7 @@ public class PetController {
                                             BindingResult bindingResult) throws IOException {
 
         if (petSaveForm.getPetImage() == null) {
-            bindingResult.rejectValue("petImage", "error.petImage", "요청에 petImage 파라미터가 누락되었습니다");
+            bindingResult.rejectValue("petImage", "Error", "요청에 petImage 파라미터가 누락되었습니다");
         }
 
         // fieldError가 발생했는지 검증하여 에러가 존재하면 FieldException
@@ -56,19 +60,16 @@ public class PetController {
             throw new FieldErrorException(bindingResult);
         }
 
-        PetResponse petResponse = petService.petToPetResponse(petService.save(userIdx, petSaveForm));
-        petResponse.setUserIdx(userIdx);
-        petResponse.setBindingResult(bindingResult);
+        PetResponse petResponse = petService.petToPetResponse(petService.save(userIdx, petSaveForm), userIdx);
 
         return assembler.toModel(petResponse);
     }
 
     @GetMapping("/{petIdx}")
     public EntityModel<PetResponse> findOnePet(@PathVariable(name = "userIdx") Long userIdx,
-                                  @PathVariable(name = "petIdx") Long petIdx) {
+                                               @PathVariable(name = "petIdx") Long petIdx) {
 
-        PetResponse petResponse = petService.petToPetResponse(petService.findOne(petIdx, userIdx));
-        petResponse.setUserIdx(userIdx);
+        PetResponse petResponse = petService.petToPetResponse(petService.findOne(petIdx, userIdx), userIdx);
 
         return assembler.toModel(petResponse);
     }
@@ -76,7 +77,7 @@ public class PetController {
     @PatchMapping("/{petIdx}")
     public EntityModel<PetResponse> updatePet(@PathVariable(name = "userIdx") Long userIdx,
                                  @PathVariable(name = "petIdx") Long petIdx,
-                                 @Valid @ModelAttribute PetRequest petRequest,
+                                 @Valid @ModelAttribute PetUpdateForm petUpdateForm,
                                  BindingResult bindingResult) throws IOException {
 
         // fieldError가 발생했는지 검증하여 에러가 존재하면 FieldException
@@ -85,8 +86,7 @@ public class PetController {
             throw new FieldErrorException(bindingResult);
         }
 
-        PetResponse petResponse = petService.petToPetResponse(petService.update(petIdx, userIdx, petRequest));
-        petResponse.setUserIdx(userIdx);
+        PetResponse petResponse = petService.petToPetResponse(petService.update(petIdx, userIdx, petUpdateForm), userIdx);
 
         return assembler.toModel(petResponse);
     }
@@ -105,6 +105,7 @@ public class PetController {
                                             @PathVariable(name = "petIdx") Long petIdx) {
 
         PetCalenderResponse response = petService.readCalender(petIdx, userIdx);
+
         return EntityModel.of(response,
                 linkTo(methodOn(PetController.class).readCalender(userIdx, petIdx)).withSelfRel()
         );

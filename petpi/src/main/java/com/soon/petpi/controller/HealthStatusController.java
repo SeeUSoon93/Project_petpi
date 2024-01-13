@@ -31,7 +31,7 @@ public class HealthStatusController {
 
     @PostMapping()
     public EntityModel<HealthStatusResponse> saveHealthStatus(@PathVariable(name = "petIdx") Long petIdx,
-                                                              @Valid @RequestBody HealthStatusSaveForm healthStatusSaveForm, BindingResult bindingResult)throws IOException {
+                                                              @Valid @ModelAttribute HealthStatusSaveForm healthStatusSaveForm, BindingResult bindingResult)throws IOException {
         if(bindingResult.hasErrors()){
             log.info("error = {}", bindingResult);
             throw new FieldErrorException(bindingResult);
@@ -44,7 +44,7 @@ public class HealthStatusController {
     @PatchMapping("/{statusIdx}")
     public EntityModel<HealthStatusResponse> updateHealthStatus(@PathVariable(name = "petIdx")Long petIdx,
                                                                 @PathVariable(name="statusIdx")Long statusIdx,
-                                                                @Valid @RequestBody HealthStatusUpdateForm healthStatusUpdateForm, BindingResult bindingResult) throws IOException {
+                                                                @Valid @ModelAttribute HealthStatusUpdateForm healthStatusUpdateForm, BindingResult bindingResult) throws IOException {
         if (bindingResult.hasErrors()) {
             log.info("error = {}", bindingResult);
             throw new FieldErrorException(bindingResult);

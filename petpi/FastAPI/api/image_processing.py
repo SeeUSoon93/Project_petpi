@@ -1,44 +1,51 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow.keras.preprocessing.image import img_to_array, load_img
-from tensorflow.keras.applications.inception_v3 import preprocess_input
+from PIL import Image
+from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.applications.inception_resnet_v2 import preprocess_input
 from tensorflow.image import resize_with_pad as resize
 from io import BytesIO
 from api.utils import encode_image_to_base64
-from api.prediction_models import unet_models, inception_models, class_labels
+from api.prediction_models import unet_models, inception_model, class_labels
 import cv2
 
 async def predict_image(file):
     try:
         contents = await file.read()
-        img = load_img(BytesIO(contents), target_size=(256, 256))
+        img = Image.open(BytesIO(contents))
+        img = img.resize((256, 256))
     
         img_array = img_to_array(img)
         img_array = img_array / 255.0
         img_batch = np.expand_dims(img_array, axis=0)
+        
         masks = [model.predict(img_batch)[0].squeeze() for model in unet_models]
         masks = np.array(masks)
-        threshold = 2 / len(unet_models)
+        threshold = 2.5 / len(unet_models)
         consensus_mask = np.where(np.sum(masks > 0.5, axis=0) >= threshold, 1, 0)
+        
+        # Inception_Model에 넣을 이미지 처리
+        y_indices, x_indices = np.where(consensus_mask == 1)
+        if len(y_indices) == 0 or len(x_indices) == 0:
+            return {"error": "No object detected"}
 
-        prediction_overlay = img_array.copy()
-        prediction_overlay[consensus_mask == 0] = [0, 0, 0]
-        inception_size = (299, 299)
-        prediction_overlay_resized = resize(prediction_overlay, inception_size[0], inception_size[1])
-        prediction_overlay_preprocessed = preprocess_input(prediction_overlay_resized)
-        prediction_overlay_batch = np.expand_dims(prediction_overlay_preprocessed, axis=0)
+        x_min, x_max = x_indices.min(), x_indices.max()
+        y_min, y_max = y_indices.min(), y_indices.max()
+        cropped_img = img_array[y_min:y_max, x_min:x_max]
+        resized_img = resize(cropped_img, 299, 299, method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
+        resized_img = np.array(resized_img)
 
-        all_predictions = []
+        inception_input = preprocess_input(np.expand_dims(resized_img, axis=0))
+        
+        prediction_probabilities = inception_model.predict(inception_input)
+        print(prediction_probabilities)
+        predicted_label = np.argmax(prediction_probabilities, axis=1)[0]
+        predicted_class_label = int(predicted_label)
 
-        for model in inception_models:
-            prediction_probabilities = model.predict(prediction_overlay_batch)
-            all_predictions.append(prediction_probabilities)
+        predicted_class_label = class_labels[predicted_class_label]
+        print(predicted_class_label)
 
-        average_predictions = np.mean(all_predictions, axis=0)
-        predicted_labels = np.argmax(average_predictions, axis=1)
-        print(predicted_labels)
-        predicted_class_label = [class_labels[index] for index in predicted_labels]
-
+        # 이미지 위에 마스크 그리기 
         transparent_blue = [0.0, 0.0, 1.0, 0.1]
         contour_color = (255, 0, 0)
 
@@ -57,7 +64,7 @@ async def predict_image(file):
 
         return {
              "predicted_class_label": predicted_class_label,
-             "overlay": encode_image_to_base64(overlay_with_contours),
+             "overlay": encode_image_to_base64(cropped_img),
              "img": encode_image_to_base64(img_array)
              }
     except Exception as e:

@@ -3,6 +3,7 @@ package com.soon.petpi.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.soon.petpi.argumentresolver.Login;
 import com.soon.petpi.model.dto.chat.Message;
 import com.soon.petpi.model.entity.Chat;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
@@ -79,18 +81,45 @@ public class ChatService {
     }
 
     // 상담내역 저장(save)
-    public boolean chatSaveService(String chatMessage){
-        try {
-            Chat chat = Chat.builder()
-                    .chatDate(LocalDate.now())
-                    .chatContent(chatMessage)
-                    //.pet()
-                    .build();
-            chatRepository.save(chat);
-            return true;
-        }catch (Exception e){
-            return false;
+    public boolean chatSaveService(String chatMessage, Long userIdx){
+
+        Optional<List<Pet>> pet = petRepository.findByUserIdx(userIdx);
+        log.info("pet = {}" ,pet.get().get(1));
+
+        for(int i = 0; i < pet.get().size(); i++){
+
         }
+
+        Chat chat = Chat.builder()
+                .chatDate(LocalDate.now())
+                .chatContent(chatMessage)
+                //.pet()
+                .build();
+        chatRepository.save(chat);
+
+        return true;
+
+    }
+
+    // 펫이름 API
+    public String petNameList(Long userIdx) throws JsonProcessingException {
+        userIdx = 3L;
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        Optional<List<Pet>> petList = petRepository.findByUserIdx(userIdx);
+
+        Map<String, Object> petName = new HashMap<String, Object>();
+
+        if(petList.get().size()>0){
+            for(int i = 0; i<petList.get().size(); i++){
+                petName.put(String.format("pet%d", i+1),petList.get().get(i).getPetName());
+            }
+        }
+        if(petName == null){
+            petName.put("error", "등록된 애완동물이 없습니다.");
+        }
+        return objectMapper.writeValueAsString(petName);
     }
     // 상담내역 불러오기(read)
 

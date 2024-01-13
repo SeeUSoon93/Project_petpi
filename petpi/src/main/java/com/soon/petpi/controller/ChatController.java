@@ -1,6 +1,7 @@
 package com.soon.petpi.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.soon.petpi.argumentresolver.Login;
 import com.soon.petpi.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,18 +15,18 @@ public class ChatController {
 
     private final ChatService chatService;
 
-    // 상담내역 시작(chat gpt api)
+    // @post api 통신
     @PostMapping("/chat-gpt")
     public ResponseEntity<String> chatGptQuestion(@RequestBody String message) throws JsonProcessingException {
         ResponseEntity<String> response = chatService.chatGptAnswer(message);
         return response;
     }
 
-    // 상담내역 저장(save), JSON으로 데이터가 넘어온다는 가정
+    // @post(create) 상담내역 저장(save)
     @PostMapping("/chat-save")
-    public boolean chatSave(@RequestBody String chatMessage){
+    public boolean chatSave(@RequestBody String chatMessage, @Login Long userIdx){
 
-        boolean discrimination = chatService.chatSaveService(chatMessage);
+        boolean discrimination = chatService.chatSaveService(chatMessage, userIdx);
 
         if(discrimination == true){
             return true;
@@ -34,17 +35,24 @@ public class ChatController {
         }
     }
 
-    // 상담내역 불러오기(read)
+    // @get(read) 상담내역 불러오기
     @GetMapping("/chat-read")
-    public String chatRead(){
+    public String chatRead(@Login Long userIdx){
 
         return "";
     }
 
-    // 상담내역 삭제(delete)
+    // @put or @patch는 생략
+
+    // @delete 상담내역 삭제
     @GetMapping("/chat-delete")
     public String chatDelete(){
         return "";
     }
 
+
+    @GetMapping("/test")
+    public String test(@Login Long userIdx) throws JsonProcessingException {
+        return chatService.petNameList(userIdx);
+    }
 }

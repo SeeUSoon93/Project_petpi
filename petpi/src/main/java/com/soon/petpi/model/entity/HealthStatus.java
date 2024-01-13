@@ -31,7 +31,7 @@ public class HealthStatus {
 
     @Builder
     public HealthStatus(Long statusIdx, Pet pet, LocalDate healthDate,
-                        int petWeight, String petPoo, String petPee) {
+                        Integer petWeight, String petPoo, String petPee) {
         this.statusIdx = statusIdx;
         this.pet = pet;
         this.healthDate = healthDate;

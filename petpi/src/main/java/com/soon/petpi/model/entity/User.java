@@ -1,6 +1,5 @@
 package com.soon.petpi.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.soon.petpi.model.label.UserRole;
 import jakarta.persistence.*;
 import lombok.*;

@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class HealthStatusRequest {
 
-    private int petWeight;
+    private Integer petWeight;
 
     private String petPoo;
 

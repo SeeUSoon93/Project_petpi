@@ -8,8 +8,7 @@ from io import BytesIO
 
 from tensorflow.keras.preprocessing.image import img_to_array
 
-async def preprocess_image(file):
-        contents = await file.read()
+def preprocess_image(contents):        
         img = Image.open(BytesIO(contents))
         img = img.resize((256, 256))
     

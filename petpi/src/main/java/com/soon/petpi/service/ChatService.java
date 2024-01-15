@@ -34,7 +34,7 @@ public class ChatService {
     private final PetRepository petRepository;
 
     /**
-     * 상담내역 시작(chat gpt api)
+     *
      * @param content
      * @return
      * @throws JsonProcessingException
@@ -76,7 +76,7 @@ public class ChatService {
     }
 
     /**
-     * 상담내역 저장(save)
+     * 상담내역 저장(save, create)
      * @param chatSave
      * @return
      */
@@ -146,6 +146,32 @@ public class ChatService {
         return petInfo;
     }
     // 상담내역 불러오기(read)
+    public Map<String, Object> chatReadService(Long userIdx){
+        Optional<List<Pet>> pet = petRepository.findByUserIdx(userIdx);
+        List<Chat> chatList = new ArrayList<>();
+        Map<String, Object> response = new HashMap<>();
+
+        if(pet.isPresent()){
+            for(Pet userPet : pet.get()){
+                Optional<List<Chat>> chat = chatRepository.findByPetIdx(userPet.getPetIdx());
+                if(chat.isPresent()){
+                    for(Chat userChat : chat.get()){
+                        chatList.add(userChat);
+                    }
+                }
+            }
+        }else{
+            response.put("message", "read error");
+        }
+
+        response.put("chatInfo", chatList);
+
+        return response;
+    }
 
     // 상담내역 삭제(delete)
+    public String chatDeleteService(){
+
+        return "";
+    }
 }

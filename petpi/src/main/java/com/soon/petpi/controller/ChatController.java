@@ -36,8 +36,8 @@ public class ChatController {
 
     // @get(read) 상담내역 불러오기
     @GetMapping("/chat-read")
-    public String chatRead(@Login Long userIdx){
-        return "";
+    public Map<String, Object> chatRead(@Login Long userIdx){
+        return chatService.chatReadService(userIdx);
     }
 
     // @put or @patch는 생략

@@ -1,10 +1,12 @@
 package com.soon.petpi.service;
 
-import com.soon.petpi.model.dto.HealthStatus.HealthStatusRequest;
+import com.soon.petpi.exception.type.NoHealthStatusError;
 import com.soon.petpi.model.dto.HealthStatus.HealthStatusResponse;
+import com.soon.petpi.model.dto.HealthStatus.request.HealthStatusRequest;
+import com.soon.petpi.model.dto.HealthStatus.request.HealthStatusSaveForm;
+import com.soon.petpi.model.dto.HealthStatus.request.HealthStatusUpdateForm;
 import com.soon.petpi.model.entity.HealthStatus;
 import com.soon.petpi.model.entity.Pet;
-import com.soon.petpi.model.entity.User;
 import com.soon.petpi.repository.HealthStatusRepository;
 import com.soon.petpi.repository.PetRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -23,15 +23,14 @@ public class HealthStatusService {
     private final HealthStatusRepository healthStatusRepository;
     private final PetRepository petRepository;
 
-    public HealthStatus save(Long petIdx, HealthStatusRequest healthStatusRequest) throws IOException {
+    public HealthStatus save(Long petIdx, HealthStatusSaveForm healthStatusSaveForm) throws IOException {
 
         Pet pet = findOnePet(petIdx);
         if(pet == null){
             return null;
         }
 
-        HealthStatus h = healthRequestToHealth(healthStatusRequest);
-        h.setHealthDate(LocalDate.now());
+        HealthStatus h = healthRequestToHealth(healthStatusSaveForm);
         h.setPet(pet);
 
         healthStatusRepository.save(h);
@@ -43,8 +42,12 @@ public class HealthStatusService {
         return petRepository.findById(petIdx).orElse(null);
     }
 
-    public HealthStatus findOne(Long statusIdx){
-        return healthStatusRepository.findById(statusIdx).orElse(null);
+    public HealthStatus findOne(Long petIdx, Long statusIdx){
+        HealthStatus healthStatus = healthStatusRepository.findByIdAndPetIdx(petIdx, statusIdx).orElse(null);
+        if(healthStatus == null){
+            throw new NoHealthStatusError();
+        }
+        return healthStatus;
     }
 
     public HealthStatusResponse healthToHealthResponse(HealthStatus healthStatus){
@@ -59,30 +62,39 @@ public class HealthStatusService {
 
     public HealthStatus healthRequestToHealth(HealthStatusRequest healthStatusRequest) throws IOException{
         return HealthStatus.builder()
+                .healthDate(healthStatusRequest.getHealthDate())
                 .petWeight(healthStatusRequest.getPetWeight())
                 .petPoo(healthStatusRequest.getPetPoo())
                 .petPee(healthStatusRequest.getPetPee())
                 .build();
     }
 
-    public HealthStatus update(Long statusIdx, HealthStatusRequest healthStatusRequest){
+    public HealthStatus update(Long petIdx, Long statusIdx, HealthStatusUpdateForm healthStatusUpdateForm){
 
-        HealthStatus h = findOne(statusIdx);
+        HealthStatus h = findOne(petIdx, statusIdx);
 
         if(h == null){
             return null;
         }
 
-        h.setPetWeight(healthStatusRequest.getPetWeight());
-        h.setPetPoo(healthStatusRequest.getPetPoo());
-        h.setPetPee(healthStatusRequest.getPetPee());
+        log.info(healthStatusUpdateForm.toString());
+
+        if(healthStatusUpdateForm.getPetWeight() != 0){
+            h.setPetWeight(healthStatusUpdateForm.getPetWeight());
+        }
+        if(healthStatusUpdateForm.getPetPoo() != null){
+            h.setPetPoo(healthStatusUpdateForm.getPetPoo());
+        }
+        if(healthStatusUpdateForm.getPetPee() != null){
+            h.setPetPee(healthStatusUpdateForm.getPetPee());
+        }
 
         return healthStatusRepository.save(h);
     }
 
-    public Boolean delete(Long statusIdx){
+    public Boolean delete(Long petIdx, Long statusIdx){
 
-        HealthStatus deleteH = findOne(statusIdx);
+        HealthStatus deleteH = findOne(petIdx, statusIdx);
 
         if(deleteH==null){
             return false;

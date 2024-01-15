@@ -1,17 +1,22 @@
 package com.soon.petpi.controller;
 
-import com.soon.petpi.argumentresolver.Login;
 import com.soon.petpi.exception.type.FieldErrorException;
+import com.soon.petpi.model.dto.DeleteResult;
 import com.soon.petpi.model.dto.pet.PetCalenderResponse;
-import com.soon.petpi.model.dto.pet.PetRequest;
+import com.soon.petpi.model.dto.pet.request.PetUpdateForm;
 import com.soon.petpi.model.dto.pet.PetResponse;
-import com.soon.petpi.model.entity.User;
+import com.soon.petpi.model.dto.pet.request.PetSaveForm;
+import com.soon.petpi.model.entity.Pet;
 import com.soon.petpi.service.PetService;
+import com.soon.petpi.service.assembler.PetResponseAssembler;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,52 +24,90 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users/pets")
+@RequestMapping("/users/{userIdx}/pets")
 public class PetController {
 
     private final PetService petService;
+    private final PetResponseAssembler assembler;
 
     @GetMapping()
-    public List<PetResponse> findAllPet(@Login User user) {
-        return petService.findAll(user);
+    public CollectionModel<EntityModel<PetResponse>> findAllPet(@PathVariable(name = "userIdx") Long userIdx) {
+
+        List<Pet> pets = petService.findAll(userIdx);
+
+        List<EntityModel<PetResponse>> petResponses = pets.stream()
+                .map(pet -> petService.petToPetResponse(pet, userIdx))
+                .map(assembler::toModel)
+                .toList();
+
+        return CollectionModel.of(petResponses,
+                linkTo(methodOn(PetController.class).findAllPet(userIdx)).withSelfRel()
+        );
     }
 
     @PostMapping()
-    public PetResponse savePet(@Login User user,
-                       @Valid @ModelAttribute PetRequest petRequest, BindingResult bindingResult) throws IOException {
+    public EntityModel<PetResponse> savePet(@PathVariable(name = "userIdx") Long userIdx,
+                                            @Valid @ModelAttribute PetSaveForm petSaveForm,
+                                            BindingResult bindingResult) throws IOException {
+
+        if (petSaveForm.getPetImage() == null) {
+            bindingResult.rejectValue("petImage", "Error", "요청에 petImage 파라미터가 누락되었습니다");
+        }
+
         // fieldError가 발생했는지 검증하여 에러가 존재하면 FieldException
         if (bindingResult.hasErrors()) {
             log.info("error = {}", bindingResult);
             throw new FieldErrorException(bindingResult);
         }
 
-        return petService.petToPetResponse(petService.save(user, petRequest));
+        PetResponse petResponse = petService.petToPetResponse(petService.save(userIdx, petSaveForm), userIdx);
+
+        return assembler.toModel(petResponse);
     }
 
     @GetMapping("/{petIdx}")
-    public PetResponse changePet(@PathVariable(name = "petIdx") Long petIdx) {
-        return petService.petToPetResponse(petService.findOne(petIdx));
+    public EntityModel<PetResponse> findOnePet(@PathVariable(name = "userIdx") Long userIdx,
+                                               @PathVariable(name = "petIdx") Long petIdx) {
+
+        PetResponse petResponse = petService.petToPetResponse(petService.findOne(petIdx, userIdx), userIdx);
+
+        return assembler.toModel(petResponse);
     }
 
     @PatchMapping("/{petIdx}")
-    public PetResponse updatePet(@PathVariable(name = "petIdx") Long petIdx,
-                         @Valid @ModelAttribute PetRequest petRequest, BindingResult bindingResult) throws IOException {
+    public EntityModel<PetResponse> updatePet(@PathVariable(name = "userIdx") Long userIdx,
+                                 @PathVariable(name = "petIdx") Long petIdx,
+                                 @Valid @ModelAttribute PetUpdateForm petUpdateForm,
+                                 BindingResult bindingResult) throws IOException {
+
         // fieldError가 발생했는지 검증하여 에러가 존재하면 FieldException
         if (bindingResult.hasErrors()) {
             log.info("error = {}", bindingResult);
             throw new FieldErrorException(bindingResult);
         }
 
-        return petService.petToPetResponse(petService.update(petIdx, petRequest));
+        PetResponse petResponse = petService.petToPetResponse(petService.update(petIdx, userIdx, petUpdateForm), userIdx);
+
+        return assembler.toModel(petResponse);
     }
 
     @DeleteMapping("/{petIdx}")
-    public Boolean deletePet(@PathVariable(name = "petIdx") Long petIdx) {
-        return petService.delete(petIdx);
+    public DeleteResult deletePet(@PathVariable(name = "userIdx") Long userIdx,
+                                  @PathVariable(name = "petIdx") Long petIdx) {
+
+        petService.delete(petIdx, userIdx);
+
+        return new DeleteResult(200, "반려동물의 정보가 삭제되었습니다.");
     }
 
-    @GetMapping("/calenders/{petIdx}")
-    public PetCalenderResponse readCalender(@PathVariable(name = "petIdx") Long petIdx) {
-        return petService.readCalender(petIdx);
+    @GetMapping("/{petIdx}/calenders")
+    public EntityModel<PetCalenderResponse> readCalender(@PathVariable(name = "userIdx") Long userIdx,
+                                            @PathVariable(name = "petIdx") Long petIdx) {
+
+        PetCalenderResponse response = petService.readCalender(petIdx, userIdx);
+
+        return EntityModel.of(response,
+                linkTo(methodOn(PetController.class).readCalender(userIdx, petIdx)).withSelfRel()
+        );
     }
 }

@@ -27,7 +27,6 @@ public class PostController {
     private final PetRepository petRepository;
     private final HealthStatusRepository healthStatusRepository;
     private final DiseaseStatusRepository diseaseStatusRepository;
-    private final PetService petService;
     private final ChatRepository chatRepository;
 
     @PostConstruct
@@ -39,10 +38,18 @@ public class PostController {
                         .userRole(UserRole.USER)
                         .build();
 
+        User user2 = User.builder()
+                .userEmail("test2")
+                .userPw("test!")
+                .userNick("tester")
+                .userRole(UserRole.USER)
+                .build();
+
         User newUser = userRepository.save(user);
+        User newUser2 = userRepository.save(user2);
 
         Pet pet1 = Pet.builder()
-                .user(user)
+                .user(newUser)
                 .petName("달봉이")
                 .petBirthdate(LocalDate.of(2000, 4, 19))
                 .petSpecies(PetSpecies.DOG)
@@ -50,15 +57,24 @@ public class PostController {
                 .build();
 
         Pet pet2 = Pet.builder()
-                .user(user)
+                .user(newUser)
                 .petName("해봉이")
                 .petBirthdate(LocalDate.of(1998, 1, 16))
                 .petSpecies(PetSpecies.CAT)
                 .petGender(PetGender.FEMALE)
                 .build();
 
+        Pet pet3 = Pet.builder()
+                .user(newUser2)
+                .petName("별봉이")
+                .petBirthdate(LocalDate.of(2024, 1, 1))
+                .petSpecies(PetSpecies.CAT)
+                .petGender(PetGender.FEMALE)
+                .build();
+
         petRepository.save(pet1);
         petRepository.save(pet2);
+        petRepository.save(pet3);
 
         HealthStatus healthStatus = HealthStatus.builder()
                 .pet(pet1)
@@ -77,16 +93,12 @@ public class PostController {
 
         diseaseStatusRepository.save(diseaseStatus);
 
-        Optional<Pet> petOptional = petRepository.findByIdEntityGraph(pet1.getPetIdx());
+        Optional<Pet> petOptional = petRepository.findByIdAndUserIdx(pet1.getPetIdx(), newUser.getUserIdx());
 
         if (petOptional.isPresent()) {
             Pet pet = petOptional.get();
             log.info("petName = {}", pet.getPetName());
         }
-
-        List<PetResponse> pets = petService.findAll(newUser);
-
-        log.info("petName = [{}][{}]", pets.get(0).getPetName(), pets.get(1).getPetName());
 
         Chat chat = Chat.builder()
                 .chatDate(LocalDate.now())

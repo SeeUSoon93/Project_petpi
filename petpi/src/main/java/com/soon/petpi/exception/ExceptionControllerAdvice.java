@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -40,9 +39,9 @@ public class ExceptionControllerAdvice {
                 .toList();
 
         List<String> messages = fieldErrors.stream()
-                .map(fieldError -> getMessage(
-                        Arrays.stream(fieldError.getCodes()).findFirst().orElse(null),
-                        fieldError.getDefaultMessage()))
+                .map(fieldError -> getMessage(fieldError.getCodes(),
+                        fieldError.getDefaultMessage())
+                )
                 .toList();
 
         return new FieldErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), fieldNames, messages);
@@ -57,7 +56,7 @@ public class ExceptionControllerAdvice {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(NoPetError.class)
     public ErrorResult noPetError(NoPetError e) {
-        return new ErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), "존재하지 않는 반려동물입니다");
+        return new ErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), "보유하지 않은 반려동물입니다");
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
@@ -72,13 +71,14 @@ public class ExceptionControllerAdvice {
         return new ErrorResult(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.name(), "존재하지 않는 사용자입니다");
     }
 
-    public String getMessage(String code, String defaultMessage) {
+    public String getMessage(String[] codes, String defaultMessage) {
         Locale locale = LocaleContextHolder.getLocale();
-        try {
-            return messageSource.getMessage(code, new Object[]{}, locale);
-        } catch (NoSuchMessageException e) {
-            return defaultMessage;
-        }
-    }
 
+        for (int idx=0; idx<codes.length; idx++) {
+            try {
+                return messageSource.getMessage(codes[idx], new Object[]{}, locale);
+            } catch (NoSuchMessageException ignored) {}
+        }
+        return defaultMessage;
+    }
 }

@@ -5,15 +5,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class HealthStatusRequest {
 
-    private int petWeight;
+    private Integer petWeight;
 
     private String petPoo;
 
     private String petPee;
+
+    private LocalDate healthDate;
 }

@@ -7,7 +7,7 @@ def create_app():
     
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=origins,
+        allow_origins=["*"], # 나중에 구체적인 주소로 수정
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

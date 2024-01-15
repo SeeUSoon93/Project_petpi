@@ -7,12 +7,15 @@ from tensorflow.keras.models import load_model
 unet_model_path = ['model/unet01.h5', 'model/unet02.h5', 'model/unet03.h5']
 unet_models = [load_model(path)for path in unet_model_path]
 
-inception_model = load_model('model/multi_136_02.h5')
+inception_model = load_model('model/all_model_01.h5')
 
 class_labels = {
         0: 'A1_구진/플라크',
-        1: 'A3_태선화/과다색소침착',
-        2: 'A6_결정/종괴'
+        1: 'A2_비듬/각질/상피성잔고리',
+        2: 'A3_태선화/과다색소침착',
+        3: 'A4_농포/여드름',
+        4: 'A5_미란/궤양',
+        5: 'A6_결정/종괴'
     }
 
 def predict_with_unet(img_batch):
@@ -34,9 +37,7 @@ def predict_with_inception(img_array, consensus_mask):
         resized_img = resize(cropped_img, 299, 299, method=tf.image.ResizeMethod.NEAREST_NEIGHBOR)
         resized_img = np.array(resized_img)
 
-        img_array = tf.image.resize(img_array, [299, 299])
-        img_array = np.array(img_array)
-        inception_input = preprocess_input(np.expand_dims(img_array, axis=0))
+        inception_input = preprocess_input(np.expand_dims(resized_img, axis=0))
         
         prediction_probabilities = inception_model.predict(inception_input)
         print(prediction_probabilities)

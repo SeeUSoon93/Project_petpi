@@ -3,23 +3,18 @@ package com.soon.petpi.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.util.JSONPObject;
-import com.soon.petpi.argumentresolver.Login;
+import com.soon.petpi.model.dto.chat.ChatSaveDTO;
 import com.soon.petpi.model.dto.chat.Message;
 import com.soon.petpi.model.entity.Chat;
 import com.soon.petpi.model.entity.Pet;
 import com.soon.petpi.repository.ChatRepository;
 import com.soon.petpi.repository.PetRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 import org.springframework.web.client.RestTemplate;
-
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.*;
@@ -38,12 +33,12 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final PetRepository petRepository;
 
-    // pet 객체가 있는 지 없는 지 판단하는 로직
-    public void petExeption(HttpSession session){
-        session.getId();
-    }
-
-    // 상담내역 시작(chat gpt api)
+    /**
+     * 상담내역 시작(chat gpt api)
+     * @param content
+     * @return
+     * @throws JsonProcessingException
+     */
     public ResponseEntity<String> chatGptAnswer(String content) throws JsonProcessingException {
 
         RestTemplate restTemplate = new RestTemplate();
@@ -80,46 +75,75 @@ public class ChatService {
         return exchange;
     }
 
-    // 상담내역 저장(save)
-    public boolean chatSaveService(String chatMessage, Long userIdx){
+    /**
+     * 상담내역 저장(save)
+     * @param chatSave
+     * @return
+     */
+    public Map<String, Object> chatSaveService(ChatSaveDTO chatSave){
 
-        Optional<List<Pet>> pet = petRepository.findByUserIdx(userIdx);
-        log.info("pet = {}" ,pet.get().get(1));
+        Map<String, Object> response = new HashMap<>();
+        try {
+            StringBuilder stringBuilder = new StringBuilder();
 
-        for(int i = 0; i < pet.get().size(); i++){
+            // chatContent DB저장 전 세팅
+            for(ChatSaveDTO.ChatContent chatContent : chatSave.getChatSave().getChatContent()){
+                stringBuilder.append("Q:");
+                stringBuilder.append(chatContent.getQ());
+                stringBuilder.append("_");
+                stringBuilder.append("A:");
+                stringBuilder.append(chatContent.getA());
+                stringBuilder.append("_");
+            }
 
+            // pet DB저장 전 세팅
+            Pet pet = petRepository
+                    .findById(chatSave.getChatSave().getPetIdx()).orElse(null);
+
+            // build 패턴을 통한 chat(상담내역) DB저장
+            Chat chat = Chat.builder()
+                    .chatDate(LocalDate.now())
+                    .chatContent(stringBuilder.toString())
+                    .pet(pet)
+                    .build();
+            chatRepository.save(chat);
+
+            response.put("message", "save success");
+            return response;
+        }catch (Exception e){
+            response.put("message", "save fail");
+            return response;
         }
-
-        Chat chat = Chat.builder()
-                .chatDate(LocalDate.now())
-                .chatContent(chatMessage)
-                //.pet()
-                .build();
-        chatRepository.save(chat);
-
-        return true;
 
     }
 
-    // 펫이름 API
-    public String petNameList(Long userIdx) throws JsonProcessingException {
-        userIdx = 3L;
-
-        ObjectMapper objectMapper = new ObjectMapper();
+    /**
+     * petName Map을 json으로 변환 후 반환
+     * 추후 쳇상담 내역을 저장하기 전에 어떤 애완동물의
+     * 상담내역인지 명시하기 위함.
+     * @param userIdx
+     * @return json데이터 반환 [{"petIdx" : value, "petName" : value}]
+     */
+    public Map<String, List<Map<String, Object>>> petNameList(Long userIdx){
 
         Optional<List<Pet>> petList = petRepository.findByUserIdx(userIdx);
+        List<Map<String, Object>> petJson = new ArrayList<>();
+        Map<String, List<Map<String, Object>>> petInfo = new HashMap<>();
 
-        Map<String, Object> petName = new HashMap<String, Object>();
-
-        if(petList.get().size()>0){
-            for(int i = 0; i<petList.get().size(); i++){
-                petName.put(String.format("pet%d", i+1),petList.get().get(i).getPetName());
+        if (petList.isPresent()) {
+            for (Pet pet : petList.get()) {
+                Map<String, Object> successInfo = new HashMap<>();
+                successInfo.put("petIdx", pet.getPetIdx());
+                successInfo.put("petName", pet.getPetName());
+                petJson.add(successInfo);
             }
+        } else {
+            Map<String, Object> failInfo = new HashMap<>();
+            failInfo.put("message", "pet is null");
+            petJson.add(failInfo);
         }
-        if(petName == null){
-            petName.put("error", "등록된 애완동물이 없습니다.");
-        }
-        return objectMapper.writeValueAsString(petName);
+        petInfo.put("petInfo", petJson);
+        return petInfo;
     }
     // 상담내역 불러오기(read)
 

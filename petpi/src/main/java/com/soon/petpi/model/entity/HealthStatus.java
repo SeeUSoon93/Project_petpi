@@ -1,6 +1,5 @@
 package com.soon.petpi.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +18,6 @@ public class HealthStatus {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_idx")
-    @JsonIgnore
     private Pet pet;
 
     @Column(updatable = false)
@@ -33,7 +31,7 @@ public class HealthStatus {
 
     @Builder
     public HealthStatus(Long statusIdx, Pet pet, LocalDate healthDate,
-                        int petWeight, String petPoo, String petPee) {
+                        Integer petWeight, String petPoo, String petPee) {
         this.statusIdx = statusIdx;
         this.pet = pet;
         this.healthDate = healthDate;

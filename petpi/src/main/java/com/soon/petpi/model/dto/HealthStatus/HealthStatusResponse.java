@@ -1,5 +1,6 @@
 package com.soon.petpi.model.dto.HealthStatus;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 
@@ -18,4 +19,7 @@ public class HealthStatusResponse {
     private String petPoo;
 
     private String petPee;
+
+    @JsonIgnore
+    private Long petIdx;
 }

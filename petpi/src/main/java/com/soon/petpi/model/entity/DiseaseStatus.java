@@ -21,7 +21,6 @@ public class DiseaseStatus {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_idx")
-    @JsonIgnore
     private Pet pet;
 
     @Column(updatable = false)

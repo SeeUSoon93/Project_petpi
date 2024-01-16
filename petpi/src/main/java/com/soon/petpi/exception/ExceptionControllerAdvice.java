@@ -38,17 +38,13 @@ public class ExceptionControllerAdvice {
                 .map(FieldError::getField)
                 .toList();
 
-        List<Object> inputValues = fieldErrors.stream()
-                .map(FieldError::getRejectedValue)
-                .toList();
-
         List<String> messages = fieldErrors.stream()
                 .map(fieldError -> getMessage(fieldError.getCodes(),
                         fieldError.getDefaultMessage())
                 )
                 .toList();
 
-        return new FieldErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), fieldNames, inputValues, messages);
+        return new FieldErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), fieldNames, messages);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

@@ -1,7 +1,7 @@
 from fastapi import UploadFile, File
 from fastapi.responses import JSONResponse, FileResponse
 
-from api.image_processing import predict_image
+from api.api_handle import predict_image
 from api.cors import create_app
 # python3 -m uvicorn main:app --reload --host 0.0.0.0 --port 9091
 

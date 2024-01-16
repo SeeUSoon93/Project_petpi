@@ -1,8 +1,5 @@
 package com.soon.petpi.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.soon.petpi.model.dto.chat.ChatSaveDTO;
 import com.soon.petpi.model.dto.chat.Message;
 import com.soon.petpi.model.entity.Chat;
@@ -37,7 +34,6 @@ public class ChatService {
      *
      * @param content
      * @return
-     * @throws JsonProcessingException
      */
     public ResponseEntity<String> chatGptAnswer(String content){
 
@@ -144,7 +140,7 @@ public class ChatService {
     }
 
     /**
-     * 상담내역 불러오기(read)
+     *
      * @param userIdx
      * @return
      */
@@ -177,10 +173,11 @@ public class ChatService {
     public Map<String, Object> chatDeleteService(Long chatIdx){
         log.info("chatIdx = {}",chatIdx);
         Map<String, Object> response = new HashMap<>();
-        try {
+        Optional<Chat> chat = chatRepository.findById(chatIdx);
+        if(chat.isPresent()){
             chatRepository.deleteById(chatIdx);
             response.put("message", "delete success");
-        }catch(Exception e){
+        }else {
             response.put("message", "delete fail");
         }
         return response;

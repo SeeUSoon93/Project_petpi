@@ -39,15 +39,12 @@ public class ChatService {
      * @return
      * @throws JsonProcessingException
      */
-    public ResponseEntity<String> chatGptAnswer(String content) throws JsonProcessingException {
+    public ResponseEntity<String> chatGptAnswer(String content){
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders httpHeaders = new HttpHeaders();
 
         // json형식의 매개변수 message 역직렬화를 통해 String 데이터 타입으로 변환(Object활용)
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(content);
-        content = jsonNode.get("message").asText();
         log.info("content = {}", content); // log찍어보기
 
         // 엔드포인트 uri 지정
@@ -145,7 +142,12 @@ public class ChatService {
         petInfo.put("petInfo", petJson);
         return petInfo;
     }
-    // 상담내역 불러오기(read)
+
+    /**
+     * 상담내역 불러오기(read)
+     * @param userIdx
+     * @return
+     */
     public Map<String, Object> chatReadService(Long userIdx){
         Optional<List<Pet>> pet = petRepository.findByUserIdx(userIdx);
         List<Chat> chatList = new ArrayList<>();
@@ -160,18 +162,27 @@ public class ChatService {
                     }
                 }
             }
+            response.put("chatInfo", chatList);
         }else{
             response.put("message", "read error");
         }
-
-        response.put("chatInfo", chatList);
-
         return response;
     }
 
-    // 상담내역 삭제(delete)
-    public String chatDeleteService(){
-
-        return "";
+    /**
+     * 상담내역 삭제(delete)
+     * @param chatIdx
+     * @return
+     */
+    public Map<String, Object> chatDeleteService(Long chatIdx){
+        log.info("chatIdx = {}",chatIdx);
+        Map<String, Object> response = new HashMap<>();
+        try {
+            chatRepository.deleteById(chatIdx);
+            response.put("message", "delete success");
+        }catch(Exception e){
+            response.put("message", "delete fail");
+        }
+        return response;
     }
 }

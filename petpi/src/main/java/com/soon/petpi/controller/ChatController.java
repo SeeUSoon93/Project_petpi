@@ -44,12 +44,12 @@ public class ChatController {
 
     // @delete 상담내역 삭제
     @GetMapping("/chat-delete")
-    public String chatDelete(){
-        return "";
+    public Map<String, Object> chatDelete(@RequestParam("chatIdx") Long chatIdx){
+        return chatService.chatDeleteService(chatIdx);
     }
 
     @GetMapping("/chat-choice")
-    public Map<String, List<Map<String, Object>>> test(@Login Long userIdx) throws JsonProcessingException {
+    public Map<String, List<Map<String, Object>>> test(@Login Long userIdx){
         return chatService.petNameList(userIdx);
     }
 }

@@ -22,7 +22,7 @@ server:
   port: 9090
 
 openai:
-  api-key: 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
+  api-key: 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
   model: gpt-3.5-turbo
 
 file:

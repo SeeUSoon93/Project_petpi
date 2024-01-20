@@ -1,14 +1,10 @@
 package com.soon.petpi.controller;
 
-import com.soon.petpi.argumentresolver.Login;
 import com.soon.petpi.exception.type.FieldErrorException;
 import com.soon.petpi.model.dto.DeleteResult;
-import com.soon.petpi.model.dto.HealthStatus.HealthStatusRequest;
 import com.soon.petpi.model.dto.HealthStatus.HealthStatusResponse;
 import com.soon.petpi.model.dto.HealthStatus.request.HealthStatusSaveForm;
 import com.soon.petpi.model.dto.HealthStatus.request.HealthStatusUpdateForm;
-import com.soon.petpi.model.entity.HealthStatus;
-import com.soon.petpi.model.entity.User;
 import com.soon.petpi.service.HealthStatusService;
 import com.soon.petpi.service.assembler.HealthStatusResponseAssembler;
 import jakarta.validation.Valid;

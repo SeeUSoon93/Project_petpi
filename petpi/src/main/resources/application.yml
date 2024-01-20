@@ -34,3 +34,7 @@ logging:
       springframework:
         web:
           servlet: info
+
+jwt:
+  issuer: kimhanju@gmail.com
+  secret_key: ThisStatementIsJwtSecretKeyDoNotUseThisStatement

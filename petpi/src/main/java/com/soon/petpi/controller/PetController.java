@@ -7,8 +7,10 @@ import com.soon.petpi.model.dto.pet.request.PetUpdateForm;
 import com.soon.petpi.model.dto.pet.PetResponse;
 import com.soon.petpi.model.dto.pet.request.PetSaveForm;
 import com.soon.petpi.model.entity.Pet;
+import com.soon.petpi.provider.JwtProvider;
 import com.soon.petpi.service.PetService;
 import com.soon.petpi.service.assembler.PetResponseAssembler;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,25 +26,49 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users/{userIdx}/pets")
+@RequestMapping("/users/pets")
 public class PetController {
 
     private final PetService petService;
     private final PetResponseAssembler assembler;
+    private final JwtProvider provider;
+    private final String HEADER_AUTHORIZATION = "Authorization";
+
+//    @GetMapping()
+//    public CollectionModel<EntityModel<PetResponse>> findAllPet(HttpServletRequest request) {
+//        String token = request.getHeader(HEADER_AUTHORIZATION);
+//        token = token.substring(7);
+//        log.info(token);
+//        Long userIdx = provider.getUserIdx(token);
+//
+//        log.info("userIdx = {}", userIdx.toString());
+//
+//        List<Pet> pets = petService.findAll(userIdx);
+//
+//        List<EntityModel<PetResponse>> petResponses = pets.stream()
+//                .map(pet -> petService.petToPetResponse(pet, userIdx))
+//                .map(assembler::toModel)
+//                .toList();
+//
+//        return CollectionModel.of(petResponses,
+//                linkTo(methodOn(PetController.class).findAllPet(request)).withSelfRel()
+//        );
+//    }
 
     @GetMapping()
-    public CollectionModel<EntityModel<PetResponse>> findAllPet(@PathVariable(name = "userIdx") Long userIdx) {
+    public List<PetResponse> findAllPet(HttpServletRequest request) {
+        String token = request.getHeader(HEADER_AUTHORIZATION);
+        token = token.substring(7);
+        log.info(token);
+        Long userIdx = provider.getUserIdx(token);
 
-        List<Pet> pets = petService.findAll(userIdx);
+        log.info("userIdx = {}", userIdx.toString());
 
-        List<EntityModel<PetResponse>> petResponses = pets.stream()
+        List<PetResponse> pets = petService.findAll(userIdx).stream()
                 .map(pet -> petService.petToPetResponse(pet, userIdx))
-                .map(assembler::toModel)
                 .toList();
 
-        return CollectionModel.of(petResponses,
-                linkTo(methodOn(PetController.class).findAllPet(userIdx)).withSelfRel()
-        );
+        return pets;
     }
 
     @PostMapping()

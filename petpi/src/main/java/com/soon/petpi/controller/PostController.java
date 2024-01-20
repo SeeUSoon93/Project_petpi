@@ -35,14 +35,14 @@ public class PostController {
                         .userEmail("test")
                         .userPw("test!")
                         .userNick("tester")
-                        .userRole(UserRole.USER)
+                        .userRole(UserRole.ROLE_USER)
                         .build();
 
         User user2 = User.builder()
                 .userEmail("test2")
                 .userPw("test!")
                 .userNick("tester")
-                .userRole(UserRole.USER)
+                .userRole(UserRole.ROLE_USER)
                 .build();
 
         User newUser = userRepository.save(user);

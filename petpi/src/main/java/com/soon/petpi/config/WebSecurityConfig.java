@@ -49,7 +49,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/h2-console/**").permitAll()
                         .requestMatchers("/","/api/v1/auth/**","/api/v1/auth/id-check/**").permitAll()
                         .requestMatchers("/api/v1/user/**").hasRole("USER")
-                        .requestMatchers("/users/**").permitAll()
+                        .requestMatchers("/user/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .headers((headers) -> headers

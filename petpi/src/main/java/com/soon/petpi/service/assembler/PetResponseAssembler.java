@@ -16,14 +16,13 @@ public class PetResponseAssembler implements RepresentationModelAssembler<PetRes
     @Override
     @SneakyThrows
     public EntityModel<PetResponse> toModel(PetResponse entity) {
-//        return EntityModel.of(entity,
-//                linkTo(methodOn(PetController.class).findAllPet(null)).withRel("collection"),
-//                linkTo(methodOn(PetController.class).findOnePet(entity.getUserIdx(), entity.getPetIdx())).withRel("detail"),
-//                linkTo(methodOn(PetController.class).updatePet(entity.getUserIdx(), entity.getPetIdx(), null, null)).withRel("update"),
-//                linkTo(methodOn(PetController.class).deletePet(entity.getUserIdx(), entity.getPetIdx())).withRel("delete"),
-//                linkTo(methodOn(PetController.class).readCalender(entity.getUserIdx(), entity.getPetIdx())).withRel("readCalender"),
-//                Link.of("https://petpi-project.gitbook.io/petpi-api-spec/").withRel("Docs")
-//        );
-        return null;
+        return EntityModel.of(entity,
+                linkTo(methodOn(PetController.class).findAllPet(entity.getUserIdx())).withRel("collection"),
+                linkTo(methodOn(PetController.class).findOnePet(entity.getUserIdx(), entity.getPetIdx())).withRel("detail"),
+                linkTo(methodOn(PetController.class).updatePet(entity.getUserIdx(), entity.getPetIdx(), null, null)).withRel("update"),
+                linkTo(methodOn(PetController.class).deletePet(entity.getUserIdx(), entity.getPetIdx())).withRel("delete"),
+                linkTo(methodOn(PetController.class).readCalender(entity.getUserIdx(), entity.getPetIdx())).withRel("readCalender"),
+                Link.of("https://petpi-project.gitbook.io/petpi-api-spec/").withRel("Docs")
+        );
     }
 }

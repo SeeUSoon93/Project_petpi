@@ -1,5 +1,6 @@
 package com.soon.petpi.controller;
 
+import com.soon.petpi.argumentresolover.Login;
 import com.soon.petpi.exception.type.FieldErrorException;
 import com.soon.petpi.model.dto.DeleteResult;
 import com.soon.petpi.model.dto.pet.PetCalenderResponse;
@@ -26,53 +27,29 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users/pets")
+@RequestMapping("/user/pets")
 public class PetController {
 
     private final PetService petService;
     private final PetResponseAssembler assembler;
-    private final JwtProvider provider;
-    private final String HEADER_AUTHORIZATION = "Authorization";
-
-//    @GetMapping()
-//    public CollectionModel<EntityModel<PetResponse>> findAllPet(HttpServletRequest request) {
-//        String token = request.getHeader(HEADER_AUTHORIZATION);
-//        token = token.substring(7);
-//        log.info(token);
-//        Long userIdx = provider.getUserIdx(token);
-//
-//        log.info("userIdx = {}", userIdx.toString());
-//
-//        List<Pet> pets = petService.findAll(userIdx);
-//
-//        List<EntityModel<PetResponse>> petResponses = pets.stream()
-//                .map(pet -> petService.petToPetResponse(pet, userIdx))
-//                .map(assembler::toModel)
-//                .toList();
-//
-//        return CollectionModel.of(petResponses,
-//                linkTo(methodOn(PetController.class).findAllPet(request)).withSelfRel()
-//        );
-//    }
 
     @GetMapping()
-    public List<PetResponse> findAllPet(HttpServletRequest request) {
-        String token = request.getHeader(HEADER_AUTHORIZATION);
-        token = token.substring(7);
-        log.info(token);
-        Long userIdx = provider.getUserIdx(token);
+    public CollectionModel<EntityModel<PetResponse>> findAllPet(@Login Long userIdx) {
 
-        log.info("userIdx = {}", userIdx.toString());
+        List<Pet> pets = petService.findAll(userIdx);
 
-        List<PetResponse> pets = petService.findAll(userIdx).stream()
+        List<EntityModel<PetResponse>> petResponses = pets.stream()
                 .map(pet -> petService.petToPetResponse(pet, userIdx))
+                .map(assembler::toModel)
                 .toList();
 
-        return pets;
+        return CollectionModel.of(petResponses,
+                linkTo(methodOn(PetController.class).findAllPet(userIdx)).withSelfRel()
+        );
     }
 
     @PostMapping()
-    public EntityModel<PetResponse> savePet(@PathVariable(name = "userIdx") Long userIdx,
+    public EntityModel<PetResponse> savePet(@Login Long userIdx,
                                             @Valid @ModelAttribute PetSaveForm petSaveForm,
                                             BindingResult bindingResult) throws IOException {
 
@@ -92,7 +69,7 @@ public class PetController {
     }
 
     @GetMapping("/{petIdx}")
-    public EntityModel<PetResponse> findOnePet(@PathVariable(name = "userIdx") Long userIdx,
+    public EntityModel<PetResponse> findOnePet(@Login Long userIdx,
                                                @PathVariable(name = "petIdx") Long petIdx) {
 
         PetResponse petResponse = petService.petToPetResponse(petService.findOne(petIdx, userIdx), userIdx);
@@ -101,7 +78,7 @@ public class PetController {
     }
 
     @PatchMapping("/{petIdx}")
-    public EntityModel<PetResponse> updatePet(@PathVariable(name = "userIdx") Long userIdx,
+    public EntityModel<PetResponse> updatePet(@Login Long userIdx,
                                  @PathVariable(name = "petIdx") Long petIdx,
                                  @Valid @ModelAttribute PetUpdateForm petUpdateForm,
                                  BindingResult bindingResult) throws IOException {
@@ -118,7 +95,7 @@ public class PetController {
     }
 
     @DeleteMapping("/{petIdx}")
-    public DeleteResult deletePet(@PathVariable(name = "userIdx") Long userIdx,
+    public DeleteResult deletePet(@Login Long userIdx,
                                   @PathVariable(name = "petIdx") Long petIdx) {
 
         petService.delete(petIdx, userIdx);
@@ -127,7 +104,7 @@ public class PetController {
     }
 
     @GetMapping("/{petIdx}/calenders")
-    public EntityModel<PetCalenderResponse> readCalender(@PathVariable(name = "userIdx") Long userIdx,
+    public EntityModel<PetCalenderResponse> readCalender(@Login Long userIdx,
                                             @PathVariable(name = "petIdx") Long petIdx) {
 
         PetCalenderResponse response = petService.readCalender(petIdx, userIdx);

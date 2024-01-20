@@ -1,13 +1,10 @@
 package com.soon.petpi.controller;
 
-import com.soon.petpi.argumentresolver.Login;
 import com.soon.petpi.exception.type.FieldErrorException;
 import com.soon.petpi.model.dto.DeleteResult;
-import com.soon.petpi.model.dto.DiseaseStatus.DiseaseStatusRequest;
 import com.soon.petpi.model.dto.DiseaseStatus.DiseaseStatusResponse;
 import com.soon.petpi.model.dto.DiseaseStatus.request.DiseaseStatusSaveForm;
 import com.soon.petpi.model.dto.DiseaseStatus.request.DiseaseStatusUpdateForm;
-import com.soon.petpi.model.entity.User;
 import com.soon.petpi.service.DiseaseStatusService;
 import com.soon.petpi.service.assembler.DiseaseStatusResponseAssembler;
 import jakarta.validation.Valid;
@@ -17,7 +14,6 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 
 @Slf4j

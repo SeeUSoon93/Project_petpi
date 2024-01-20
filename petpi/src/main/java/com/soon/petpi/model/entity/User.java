@@ -1,5 +1,6 @@
 package com.soon.petpi.model.entity;
 
+import com.soon.petpi.model.dto.user.auth.SignUpRequestDto;
 import com.soon.petpi.model.label.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,7 +37,21 @@ public class User {
         this.userPw = userPw;
     }
 
+    public User(SignUpRequestDto dto) {
+        this.userEmail = dto.getEmail();
+        this.userPw = dto.getPassword();
+        this.userNick = dto.getNick();
+        // to do 타입 필드가 있는 생성자 (일반, 카카오) this.type = "app" , this.type = "kakao"
+        this.userRole = UserRole.ROLE_USER;
+
+    }
+
     public String getUserRole() {
         return userRole.getRoleName();
     }
+
+    public String getJwtRole() {
+        return this.userRole.toString();
+    }
+
 }

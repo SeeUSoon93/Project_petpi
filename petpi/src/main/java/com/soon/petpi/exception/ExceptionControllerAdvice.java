@@ -6,14 +6,17 @@ import com.soon.petpi.exception.type.FieldErrorException;
 import com.soon.petpi.exception.type.NoPetError;
 import com.soon.petpi.exception.type.NoUserError;
 import com.soon.petpi.exception.type.SessionError;
+import com.soon.petpi.model.dto.user.ResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -27,6 +30,11 @@ import java.util.Locale;
 public class ExceptionControllerAdvice {
 
     private final MessageSource messageSource;
+
+    @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
+    public ResponseEntity<ResponseDto> validationExceptionHandler(Exception exception){
+        return ResponseDto.validationFail();
+    }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(FieldErrorException.class)
@@ -45,12 +53,6 @@ public class ExceptionControllerAdvice {
                 .toList();
 
         return new FieldErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), fieldNames, messages);
-    }
-
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ErrorResult fieldError(HttpMessageNotReadableException e) {
-        return new ErrorResult(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name(), "파라미터 값의 형식이 잘못되었습니다");
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

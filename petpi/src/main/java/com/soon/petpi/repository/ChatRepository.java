@@ -11,6 +11,6 @@ import java.util.Optional;
 public interface ChatRepository extends JpaRepository<Chat, Long> {
     @Query("select c from Chat c " +
             "where c.pet.petIdx = :petIdx")
-    Optional<List<Chat>> findByPetIdx(@Param("petIdx")Long petIdx);
+    Optional<List<Chat>> findByPetIdx(@Param("petIdx") Long petIdx);
 
 }

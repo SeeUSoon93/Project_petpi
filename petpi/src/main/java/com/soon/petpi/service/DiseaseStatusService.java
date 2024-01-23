@@ -2,6 +2,8 @@ package com.soon.petpi.service;
 
 import com.soon.petpi.model.dto.DiseaseStatus.DiseaseStatusRequest;
 import com.soon.petpi.model.dto.DiseaseStatus.DiseaseStatusResponse;
+import com.soon.petpi.model.dto.DiseaseStatus.request.DiseaseStatusSaveForm;
+import com.soon.petpi.model.dto.DiseaseStatus.request.DiseaseStatusUpdateForm;
 import com.soon.petpi.model.entity.DiseaseStatus;
 import com.soon.petpi.model.entity.Pet;
 import com.soon.petpi.model.entity.User;
@@ -22,14 +24,14 @@ public class DiseaseStatusService {
     private final DiseaseStatusRepository diseaseStatusRepository;
     private final PetRepository petRepository;
 
-    public DiseaseStatus save(Long petIdx, DiseaseStatusRequest diseaseStatusRequest) throws IOException {
+    public DiseaseStatus save(Long petIdx, DiseaseStatusSaveForm diseaseStatusSaveForm) throws IOException {
 
         Pet pet = findOnePet(petIdx);
         if(pet == null){
             return null;
         }
 
-        DiseaseStatus d = diseaseRequestToDisease(diseaseStatusRequest);
+        DiseaseStatus d = diseaseRequestToDisease(diseaseStatusSaveForm);
         d.setPet(pet);
 
         diseaseStatusRepository.save(d);
@@ -40,34 +42,37 @@ public class DiseaseStatusService {
         return petRepository.findById(petIdx).orElse(null);
     }
 
-    public DiseaseStatus diseaseRequestToDisease(DiseaseStatusRequest diseaseStatusRequest) throws IOException {
+    public DiseaseStatus diseaseRequestToDisease(DiseaseStatusSaveForm diseaseStatusSaveForm) throws IOException {
         return DiseaseStatus.builder()
-                .diseaseDate(diseaseStatusRequest.getDiseaseDate())
-                .diseaseName(diseaseStatusRequest.getDiseaseName())
-                .diseaseLabel(diseaseStatusRequest.getDiseaseLabel())
+                .diseaseDate(diseaseStatusSaveForm.getDiseaseDate())
+                .diseaseName(diseaseStatusSaveForm.getDiseaseName())
+                .diseaseLabel(diseaseStatusSaveForm.getDiseaseLabel())
                 .build();
     }
 
-    public DiseaseStatus update(Long diseaseIdx, DiseaseStatusRequest diseaseStatusRequest){
+    public DiseaseStatus update(Long petIdx, Long diseaseIdx, DiseaseStatusUpdateForm diseaseStatusUpdateForm){
 
-        DiseaseStatus d = findOne(diseaseIdx);
+        DiseaseStatus d = findOne(petIdx, diseaseIdx);
 
-        if(d == null){
-            return null;
+        log.info(diseaseStatusUpdateForm.toString());
+
+        if(diseaseStatusUpdateForm.getDiseaseName() != null){
+            d.setDiseaseName(diseaseStatusUpdateForm.getDiseaseName());
+        }
+        if(diseaseStatusUpdateForm.getDiseaseLabel() != null){
+            d.setDiseaseLabel(diseaseStatusUpdateForm.getDiseaseLabel());
         }
 
-        d.setDiseaseName(diseaseStatusRequest.getDiseaseName());
-        d.setDiseaseLabel(diseaseStatusRequest.getDiseaseLabel());
         return diseaseStatusRepository.save(d);
     }
 
-    public DiseaseStatus findOne(Long diseaseIdx){
-        return diseaseStatusRepository.findById(diseaseIdx).orElse(null);
+    public DiseaseStatus findOne(Long petIdx, Long diseaseIdx){
+        return diseaseStatusRepository.findByIdAndPetIdx(petIdx, diseaseIdx).orElse(null);
     }
 
-    public Boolean delete(Long diseaseIdx) {
+    public Boolean delete(Long petIdx, Long diseaseIdx) {
 
-        DiseaseStatus deleteD = findOne(diseaseIdx);
+        DiseaseStatus deleteD = findOne(petIdx, diseaseIdx);
 
         if(deleteD == null){
             return false;

@@ -9,8 +9,6 @@ import com.soon.petpi.model.entity.Pet;
 import com.soon.petpi.repository.ChatContentRepository;
 import com.soon.petpi.repository.ChatRepository;
 import com.soon.petpi.repository.PetRepository;
-import lombok.Builder;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,11 +41,13 @@ public class ChatService {
      */
     public String chatGptAnswer(String question){
 
+
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders httpHeaders = new HttpHeaders();
 
         // json형식의 매개변수 message 역직렬화를 통해 String 데이터 타입으로 변환(Object활용)
         log.info("content = {}", question); // log찍어보기
+
 
         // 엔드포인트 uri 지정
         String uri = "https://api.openai.com/v1/chat/completions";
@@ -180,6 +180,7 @@ public class ChatService {
             response.put("message", "delete fail");
         }
         return response;
+
     }
 
 

@@ -9,10 +9,14 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByUserEmailAndUserPw(String userEmail, String UserPw);
 
     @Query("select u from User u " +
             "join fetch u.pets p " +
             "where u.id = :userIdx And p.id = :petIdx")
     Optional<User> findByIdAndPetIdx(Long userIdx, Long petIdx);
+
+    Optional<User> findByUserEmailAndUserPw(String userEmail, String UserPw);
+    User findByUserEmail(String userEmail);
+
+    boolean existsByUserEmail(String userEmail);
 }

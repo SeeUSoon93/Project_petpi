@@ -4,6 +4,11 @@ spring:
     url: jdbc:h2:tcp://localhost/~/petpi
     username: sa
     password:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://petpi-db.c3qycqaukg14.ap-northeast-2.rds.amazonaws.com:3306/petpi
+#    username: admin
+#    password: petpigodsoon
+
   jpa:
     hibernate:
       ddl-auto: create
@@ -34,3 +39,7 @@ logging:
       springframework:
         web:
           servlet: info
+
+jwt:
+  issuer: kimhanju@gmail.com
+  secret_key: ThisStatementIsJwtSecretKeyDoNotUseThisStatement

@@ -1,3 +1,4 @@
 *.pyc
 *.h5
+*.keras
 __pycache__/

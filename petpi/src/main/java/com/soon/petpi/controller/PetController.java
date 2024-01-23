@@ -1,5 +1,6 @@
 package com.soon.petpi.controller;
 
+import com.soon.petpi.argumentresolover.Login;
 import com.soon.petpi.exception.type.FieldErrorException;
 import com.soon.petpi.model.dto.DeleteResult;
 import com.soon.petpi.model.dto.pet.PetCalenderResponse;
@@ -7,8 +8,10 @@ import com.soon.petpi.model.dto.pet.request.PetUpdateForm;
 import com.soon.petpi.model.dto.pet.PetResponse;
 import com.soon.petpi.model.dto.pet.request.PetSaveForm;
 import com.soon.petpi.model.entity.Pet;
+import com.soon.petpi.provider.JwtProvider;
 import com.soon.petpi.service.PetService;
 import com.soon.petpi.service.assembler.PetResponseAssembler;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,14 +27,14 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users/{userIdx}/pets")
+@RequestMapping("/user/pets")
 public class PetController {
 
     private final PetService petService;
     private final PetResponseAssembler assembler;
 
     @GetMapping()
-    public CollectionModel<EntityModel<PetResponse>> findAllPet(@PathVariable(name = "userIdx") Long userIdx) {
+    public CollectionModel<EntityModel<PetResponse>> findAllPet(@Login Long userIdx) {
 
         List<Pet> pets = petService.findAll(userIdx);
 
@@ -46,7 +49,7 @@ public class PetController {
     }
 
     @PostMapping()
-    public EntityModel<PetResponse> savePet(@PathVariable(name = "userIdx") Long userIdx,
+    public EntityModel<PetResponse> savePet(@Login Long userIdx,
                                             @Valid @ModelAttribute PetSaveForm petSaveForm,
                                             BindingResult bindingResult) throws IOException {
 
@@ -66,7 +69,7 @@ public class PetController {
     }
 
     @GetMapping("/{petIdx}")
-    public EntityModel<PetResponse> findOnePet(@PathVariable(name = "userIdx") Long userIdx,
+    public EntityModel<PetResponse> findOnePet(@Login Long userIdx,
                                                @PathVariable(name = "petIdx") Long petIdx) {
 
         PetResponse petResponse = petService.petToPetResponse(petService.findOne(petIdx, userIdx), userIdx);
@@ -75,7 +78,7 @@ public class PetController {
     }
 
     @PatchMapping("/{petIdx}")
-    public EntityModel<PetResponse> updatePet(@PathVariable(name = "userIdx") Long userIdx,
+    public EntityModel<PetResponse> updatePet(@Login Long userIdx,
                                  @PathVariable(name = "petIdx") Long petIdx,
                                  @Valid @ModelAttribute PetUpdateForm petUpdateForm,
                                  BindingResult bindingResult) throws IOException {
@@ -92,7 +95,7 @@ public class PetController {
     }
 
     @DeleteMapping("/{petIdx}")
-    public DeleteResult deletePet(@PathVariable(name = "userIdx") Long userIdx,
+    public DeleteResult deletePet(@Login Long userIdx,
                                   @PathVariable(name = "petIdx") Long petIdx) {
 
         petService.delete(petIdx, userIdx);
@@ -101,7 +104,7 @@ public class PetController {
     }
 
     @GetMapping("/{petIdx}/calenders")
-    public EntityModel<PetCalenderResponse> readCalender(@PathVariable(name = "userIdx") Long userIdx,
+    public EntityModel<PetCalenderResponse> readCalender(@Login Long userIdx,
                                             @PathVariable(name = "petIdx") Long petIdx) {
 
         PetCalenderResponse response = petService.readCalender(petIdx, userIdx);

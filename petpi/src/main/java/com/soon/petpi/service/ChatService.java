@@ -1,11 +1,16 @@
 package com.soon.petpi.service;
 
 import com.soon.petpi.model.dto.chat.ChatSaveDTO;
+import com.soon.petpi.model.dto.chat.GptApiResponse;
 import com.soon.petpi.model.dto.chat.Message;
 import com.soon.petpi.model.entity.Chat;
+import com.soon.petpi.model.entity.ChatContent;
 import com.soon.petpi.model.entity.Pet;
+import com.soon.petpi.repository.ChatContentRepository;
 import com.soon.petpi.repository.ChatRepository;
 import com.soon.petpi.repository.PetRepository;
+import lombok.Builder;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,19 +34,20 @@ public class ChatService {
 
     private final ChatRepository chatRepository;
     private final PetRepository petRepository;
+    private final ChatContentRepository chatContentRepository;
 
     /**
-     *
-     * @param content
+     * chatGPT API text 생성
+     * @param question
      * @return
      */
-    public ResponseEntity<String> chatGptAnswer(String content){
+    public String chatGptAnswer(String question){
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders httpHeaders = new HttpHeaders();
 
         // json형식의 매개변수 message 역직렬화를 통해 String 데이터 타입으로 변환(Object활용)
-        log.info("content = {}", content); // log찍어보기
+        log.info("content = {}", question); // log찍어보기
 
         // 엔드포인트 uri 지정
         String uri = "https://api.openai.com/v1/chat/completions";
@@ -51,7 +57,7 @@ public class ChatService {
         httpHeaders.setContentType(MediaType.APPLICATION_JSON); // json타입으로 데이터를 전달하겠다는 뜻
 
         ArrayList<Message> messages = new ArrayList<>();
-        messages.add(new Message("user", content));
+        messages.add(new Message("user", question));
 
         // 바디 작성 + model + messages
         Map<String, Object> requestBody = new HashMap<>();
@@ -62,52 +68,12 @@ public class ChatService {
         RequestEntity<Map<String, Object>> httpEntity
                 = new RequestEntity<>(requestBody, httpHeaders, HttpMethod.POST, URI.create(uri));
 
-        ResponseEntity<String> exchange
-                = restTemplate.exchange(httpEntity, String.class);
+        ResponseEntity<GptApiResponse> exchange
+                = restTemplate.exchange(httpEntity, GptApiResponse.class);
 
-        return exchange;
-    }
+        log.info("message = {}", exchange.getBody().getChoices().get(0).getMessage().getContent());
 
-    /**
-     * 상담내역 저장(save, create)
-     * @param chatSave
-     * @return
-     */
-    public Map<String, Object> chatSaveService(ChatSaveDTO chatSave){
-
-        Map<String, Object> response = new HashMap<>();
-        try {
-            StringBuilder stringBuilder = new StringBuilder();
-
-            // chatContent DB저장 전 세팅
-            for(ChatSaveDTO.ChatContent chatContent : chatSave.getChatSave().getChatContent()){
-                stringBuilder.append("Q:");
-                stringBuilder.append(chatContent.getQ());
-                stringBuilder.append("_");
-                stringBuilder.append("A:");
-                stringBuilder.append(chatContent.getA());
-                stringBuilder.append("_");
-            }
-
-            // pet DB저장 전 세팅
-            Pet pet = petRepository
-                    .findById(chatSave.getChatSave().getPetIdx()).orElse(null);
-
-            // build 패턴을 통한 chat(상담내역) DB저장
-            Chat chat = Chat.builder()
-                    .chatDate(LocalDate.now())
-                    .chatContent(stringBuilder.toString())
-                    .pet(pet)
-                    .build();
-            chatRepository.save(chat);
-
-            response.put("message", "save success");
-            return response;
-        }catch (Exception e){
-            response.put("message", "save fail");
-            return response;
-        }
-
+        return exchange.getBody().getChoices().get(0).getMessage().getContent();
     }
 
     /**
@@ -140,9 +106,42 @@ public class ChatService {
     }
 
     /**
-     *
+     * 상담내역 저장(save, create)
+     * @param chatSave
+     * @return message = success & fail
+     */
+    public Map<String, Object> chatSaveService(ChatSaveDTO chatSave){
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            Chat chat = Chat.builder()
+                    .chatDate(LocalDate.now())
+                    .pet(petRepository.findById(chatSave.getChatSave().getPetIdx()).get())
+                    .build();
+            chatRepository.save(chat);
+            for(int i=0; i<chatSave.getChatSave().getChatContent().size(); i++){
+                ChatContent chatContent = ChatContent.builder()
+                        .chat(chat)
+                        .question(chatSave.getChatSave().getChatContent().get(i).getQ())
+                        .answer(chatSave.getChatSave().getChatContent().get(i).getA())
+                        .build();
+                chatContentRepository.save(chatContent);
+            }
+
+            response.put("message", "save success");
+            return response;
+        }catch(Exception e){
+            response.put("message", "save fail");
+            return response;
+        }
+    }
+
+    /**
+     * 상담내역 불러오기(read)
+     * 현재 로그인된 회원의 모든 chat값을 가져옴
      * @param userIdx
-     * @return
+     * @return chatIdx, chatContent, chatDate, petIdx, petName
      */
     public Map<String, Object> chatReadService(Long userIdx){
         Optional<List<Pet>> pet = petRepository.findByUserIdx(userIdx);
@@ -168,7 +167,7 @@ public class ChatService {
     /**
      * 상담내역 삭제(delete)
      * @param chatIdx
-     * @return
+     * @return message = success & fail
      */
     public Map<String, Object> chatDeleteService(Long chatIdx){
         log.info("chatIdx = {}",chatIdx);
@@ -182,4 +181,6 @@ public class ChatService {
         }
         return response;
     }
+
+
 }

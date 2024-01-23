@@ -6,7 +6,6 @@ import com.soon.petpi.model.dto.chat.ChatSaveDTO;
 import com.soon.petpi.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,9 +21,8 @@ public class ChatController {
 
     // @post api 통신
     @PostMapping("/chat-gpt")
-    public ResponseEntity<String> chatGptQuestion(@RequestBody String message) throws JsonProcessingException {
-        ResponseEntity<String> response = chatService.chatGptAnswer(message);
-        return response;
+    public String chatGptQuestion(@RequestBody String question) throws JsonProcessingException {
+        return chatService.chatGptAnswer(question);
     }
 
     // @post(create) 상담내역 저장(save)

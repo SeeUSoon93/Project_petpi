@@ -28,6 +28,7 @@ public class PostController {
     private final HealthStatusRepository healthStatusRepository;
     private final DiseaseStatusRepository diseaseStatusRepository;
     private final ChatRepository chatRepository;
+    private final ChatContentRepository chatContentRepository;
 
     @PostConstruct
     public void postAddUser() {
@@ -102,11 +103,17 @@ public class PostController {
 
         Chat chat = Chat.builder()
                 .chatDate(LocalDate.now())
-                .chatContent("test")
                 .pet(pet1)
                 .build();
 
         chatRepository.save(chat);
 
+        ChatContent chatContent = ChatContent.builder()
+                .chat(chat)
+                .question("test question")
+                .answer("test answer")
+                .build();
+
+        chatContentRepository.save(chatContent);
     }
 }

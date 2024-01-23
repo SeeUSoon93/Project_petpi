@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -31,7 +32,8 @@ public class Chat {
 
     private LocalDate chatDate;
 
-    private String chatContent;
+    @OneToMany(mappedBy = "chat", fetch = FetchType.LAZY)
+    private List<ChatContent> chatContent;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_idx")
@@ -39,7 +41,7 @@ public class Chat {
     private Pet pet;
 
     @Builder
-    public Chat(Long chatIdx, LocalDate chatDate, String chatContent, Pet pet) {
+    public Chat(Long chatIdx, LocalDate chatDate, List<ChatContent> chatContent, Pet pet) {
         this.chatIdx = chatIdx;
         this.chatDate = chatDate;
         this.chatContent = chatContent;

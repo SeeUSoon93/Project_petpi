@@ -20,10 +20,10 @@ public class ChatSaveDTO {
 
     @Data
     public static class ChatContent{
-        @JsonProperty("Q")
+        @JsonProperty("question")
         private String Q;
 
-        @JsonProperty("A")
+        @JsonProperty("answer")
         private String A;
     }
 }

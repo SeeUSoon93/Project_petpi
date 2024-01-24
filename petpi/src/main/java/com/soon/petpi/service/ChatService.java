@@ -1,6 +1,7 @@
 package com.soon.petpi.service;
 
 import com.soon.petpi.model.dto.chat.ChatSaveDTO;
+import com.soon.petpi.model.dto.chat.ChatUpdateDTO;
 import com.soon.petpi.model.dto.chat.GptApiResponse;
 import com.soon.petpi.model.dto.chat.Message;
 import com.soon.petpi.model.entity.Chat;
@@ -183,5 +184,26 @@ public class ChatService {
 
     }
 
-
+    /**
+     * 상담내역 추가(수정, update)
+     * @param chatUpdate
+     */
+    public Map<String,Object> chatUpdateService(ChatUpdateDTO chatUpdate) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            for (int i = 0; i< chatUpdate.getChatContents().size(); i++){
+                ChatContent chatContent = ChatContent.builder()
+                        .chat(chatRepository.findById(chatUpdate.getChatIdx()).get())
+                        .question(chatUpdate.getChatContents().get(i).getQ())
+                        .answer(chatUpdate.getChatContents().get(i).getA())
+                        .build();
+                chatContentRepository.save(chatContent);
+            }
+            response.put("message", "update success");
+            return response;
+        }catch (Exception e){
+            response.put("message", "update fail");
+            return response;
+        }
+    }
 }

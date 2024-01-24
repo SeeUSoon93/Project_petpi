@@ -1,5 +1,6 @@
 package com.soon.petpi.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,6 +16,7 @@ public class ChatContent {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_Idx")
+    @JsonIgnore
     private Chat chat;
 
     private String question;

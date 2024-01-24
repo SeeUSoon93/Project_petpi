@@ -1,5 +1,6 @@
 package com.soon.petpi.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -31,11 +32,12 @@ public class Chat {
 
     private LocalDate chatDate;
 
-    @OneToMany(mappedBy = "chat", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<ChatContent> chatContent;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "pet_idx")
+    @JsonIgnore
     private Pet pet;
 
     @Builder

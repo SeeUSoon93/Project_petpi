@@ -1,9 +1,6 @@
 package com.soon.petpi.service;
 
-import com.soon.petpi.model.dto.chat.ChatSaveDTO;
-import com.soon.petpi.model.dto.chat.ChatUpdateDTO;
-import com.soon.petpi.model.dto.chat.GptApiResponse;
-import com.soon.petpi.model.dto.chat.Message;
+import com.soon.petpi.model.dto.chat.*;
 import com.soon.petpi.model.entity.Chat;
 import com.soon.petpi.model.entity.ChatContent;
 import com.soon.petpi.model.entity.Pet;
@@ -145,24 +142,44 @@ public class ChatService {
      * @return chatIdx, chatContent, chatDate, petIdx, petName
      */
     public Map<String, Object> chatReadService(Long userIdx){
-        Optional<List<Pet>> pet = petRepository.findByUserIdx(userIdx);
-        List<Chat> chatList = new ArrayList<>();
-        Map<String, Object> response = new HashMap<>();
+        List<ChatReadResponseDTO> chatReadResponseDTOList = new ArrayList<>();
+        List<Pet> petList = petListMethod(userIdx);
+        for (Pet pet : petList){
+            ChatReadResponseDTO chatReadResponseDTO = new ChatReadResponseDTO();
+            List<Chat> chatList = chatListMethod(pet.getPetIdx());
+            for (Chat chat : chatList){
 
-        if(pet.isPresent()){
-            for(Pet userPet : pet.get()){
-                Optional<List<Chat>> chat = chatRepository.findByPetIdx(userPet.getPetIdx());
-                if(chat.isPresent()){
-                    for(Chat userChat : chat.get()){
-                        chatList.add(userChat);
-                    }
+                List<ChatContent> chatContentList = chatContentListMethod(chat.getChatIdx());
+                List<ChatReadResponseDTO.ChatContent> list = new ArrayList<>();
+                for (ChatContent chatContent : chatContentList){
+                    String q = chatContent.getQuestion();
+                    String a = chatContent.getAnswer();
+                    list.add(new ChatReadResponseDTO.ChatContent(q, a));
                 }
+                chatReadResponseDTO = ChatReadResponseDTO.builder()
+                        .petName(pet.getPetName())
+                        .chatIdx(chat.getChatIdx())
+                        .chatDate(chat.getChatDate())
+                        .chatContentList(list)
+                        .build();
+                chatReadResponseDTOList.add(chatReadResponseDTO);
             }
-            response.put("chatInfo", chatList);
-        }else{
-            response.put("message", "read error");
         }
+        Map<String, Object> response = new HashMap<>();
+        response.put("chatReadInfo", chatReadResponseDTOList);
         return response;
+    }
+
+    public List<Pet> petListMethod(Long userIdx){
+        return petRepository.findByUserIdx(userIdx).get();
+    }
+
+    public List<Chat> chatListMethod(Long petIdx){
+        return chatRepository.findByPetIdx(petIdx).get();
+    }
+
+    public List<ChatContent> chatContentListMethod(Long chatIdx){
+        return chatContentRepository.findByChatIdx(chatIdx).get();
     }
 
     /**

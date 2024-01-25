@@ -1,5 +1,6 @@
 package com.soon.petpi.controller;
 import com.soon.petpi.argumentresolover.Login;
+import com.soon.petpi.model.dto.chat.ChatReadResponseDTO;
 import com.soon.petpi.model.dto.chat.ChatSaveDTO;
 import com.soon.petpi.model.dto.chat.ChatUpdateDTO;
 import com.soon.petpi.service.ChatService;
